@@ -10,6 +10,7 @@ switch (STH_INSTALL_PROFILE) {
     define('STH_TASKS_DIR_JSE_INSTALL_CAPX', DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/CAPx');
     define('STH_TASKS_DIR_JSE_INSTALL_CONTENT', DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Content');
     define('STH_TASKS_DIR_JSE_INSTALL_LAYOUTS', DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Layouts');
+    define('STH_TASKS_DIR_JSE_INSTALL_MENU', DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Menu');
     require_once DRUPAL_ROOT . '/profiles/stanford_sites_jumpstart_engineering/includes/InstallTaskInterface.php';
     require_once DRUPAL_ROOT . '/profiles/stanford_sites_jumpstart_engineering/includes/AbstractTask.php';
     require_once DRUPAL_ROOT . '/profiles/stanford_sites_jumpstart_engineering/includes/AbstractInstallTask.php';
@@ -20,6 +21,14 @@ require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/Jumpstart/Instal
 require_once DRUPAL_ROOT . '/sites/all/libraries/stanford_sites_content_importer/SitesContentImporter.php';
 require_once DRUPAL_ROOT . '/sites/all/libraries/stanford_sites_content_importer/SitesContentImporterViews.php';
 require_once DRUPAL_ROOT . '/sites/all/libraries/stanford_sites_content_importer/ImporterFieldProcessor.php';
+
+// Load Utilities
+require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/Utility/Install/CreateMenuLinks.php';
+require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/Utility/Install/CreateRedirects.php';
+require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/Utility/Install/InsertMenuRule.php';
+require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/Utility/Install/NodeAccessRebuild.php';
+require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/Utility/Install/ViewsFromDB.php';
+require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/Utility/Install/ViewsToDB.php';
 
 require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/Jumpstart/Install/Content/Importer/ImporterFieldProcessorCustomBody.php';
 require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/Jumpstart/Install/Content/Importer/ImporterFieldProcessorCustomFieldSDestinationPublish.php';
@@ -33,6 +42,10 @@ require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEnginee
 require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Layouts/PicalHomepage.php';
 require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Layouts/PicalPeople.php';
 require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Layouts/Sitewide.php';
+require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Menu/JSEMenuItems.php';
+require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Menu/JSEMenuPositionRules.php';
+require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Menu/JSEMenuRedirects.php';
+require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Menu/JSEPrivateMenuItems.php';
 
 /**
  * Implements hook_drush_command().
@@ -68,6 +81,12 @@ function stanford_task_hopper_drush_command() {
     'callback' => 'stanford_task_hopper_jse_install_layouts',
     'drupal dependencies' => array('stanford_task_hopper'),
     'aliases' => array('sth-jse-layouts'),
+  );
+  $items['jse-install-menu'] = array(
+    'description' => 'Site layouts will be installed',
+    'callback' => 'stanford_task_hopper_jse_install_menu',
+    'drupal dependencies' => array('stanford_task_hopper'),
+    'aliases' => array('sth-jse-menu'),
   );
   $items['jse-dept-mods'] = array(
     'description' => 'Site content of this type will be installed',
@@ -140,7 +159,7 @@ function stanford_task_hopper_jse_install_capx() {
         $task = new Stanford\JumpstartEngineering\Install\CAPx\CAPxConfig();
         $task->execute();
         drush_log('jse capx config imported', 'ok');
-    }
+      }
     }
     if (in_array('CAPxDisplay.php', $tasks)) {
       $task = new Stanford\JumpstartEngineering\Install\CAPx\CAPxDisplay();
@@ -213,6 +232,45 @@ function stanford_task_hopper_jse_install_layouts() {
   }
   else {
     drush_log('The drush command sth-jse-layouts is only for use with Jumpstart Engineering', 'ok');
+  }
+}
+
+/**
+ * Callback for the jse-install-menu command
+ */
+function stanford_task_hopper_jse_install_menu() {
+  $install_profile = STH_INSTALL_PROFILE;
+  if ($install_profile == 'stanford_sites_jumpstart_engineering') {
+    $options = array();
+    $choices = scandir(STH_TASKS_DIR_JSE_INSTALL_MENU);
+    $choices = array_diff($choices, array('..', '.'));
+    foreach ($choices as $choice) {
+        $options[$choice] = $choice;
+    }
+    $tasks = drush_choice_multiple($options, dt('What tasks do you want to run?'));
+    if (in_array('JSEMenuItems.php', $tasks)) {
+      $task = new Stanford\JumpstartEngineering\Install\Menu\JSEMenuItems();
+      $task->execute();
+      drush_log('jse menu items installed', 'ok');
+    }
+    if (in_array('JSEMenuPositionRules.php', $tasks)) {
+      $task = new Stanford\JumpstartEngineering\Install\Menu\JSEMenuPositionRules();
+      $task->execute();
+      drush_log('jse menu position rules installed', 'ok');
+    }
+    if (in_array('JSEMenuRedirects.php', $tasks)) {
+      $task = new Stanford\JumpstartEngineering\Install\Menu\JSEMenuRedirects();
+      $task->execute();
+      drush_log('jse menu redirects installed', 'ok');
+    }
+    if (in_array('JSEPrivateMenuItems.php', $tasks)) {
+      $task = new Stanford\JumpstartEngineering\Install\Menu\JSEPrivateMenuItems();
+      $task->execute();
+      drush_log('jse private menu items installed', 'ok');
+    }
+  }
+  else {
+    drush_log('The drush command sth-jse-menu is only for use with Jumpstart Engineering', 'ok');
   }
 }
 
