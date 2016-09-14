@@ -72,17 +72,15 @@ function stanford_task_hopper_jse_install_content($site_type) {
       $options[$choice] = $choice;
   }
   $tasks = drush_choice_multiple($options, dt('What tasks do you want to run?'));
-  switch (TRUE) {
-    case in_array('ImportJSENodes.php', $tasks):
-      $task = new Stanford\JumpstartEngineering\Install\Content\ImportJSENodes();
-      $task->execute();
-      drush_log('import jse nodes', 'ok');
-      break;
-    case in_array('ImportJSEBeans.php', $tasks):
-      $task = new Stanford\JumpstartEngineering\Install\Content\ImportJSEBeans();
-      $task->execute();
-      drush_log('import jse beans', 'ok');
-      break;
+  if (in_array('ImportJSENodes.php', $tasks)) {
+    $task = new Stanford\JumpstartEngineering\Install\Content\ImportJSENodes();
+    $task->execute();
+    drush_log('jse nodes imported', 'ok');
+  }
+  if (in_array('ImportJSEBeans.php', $tasks)) {
+    $task = new Stanford\JumpstartEngineering\Install\Content\ImportJSEBeans();
+    $task->execute();
+    drush_log('jse beans imported', 'ok');
   }
 }
 
