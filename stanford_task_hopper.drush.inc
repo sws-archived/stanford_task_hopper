@@ -90,6 +90,9 @@ function stanford_task_hopper_jse_install_content() {
       drush_log('jse beans imported', 'ok');
     }
   }
+  else {
+    drush_log('The drush command sth-jse-ic is only for use with Jumpstart Engineering', 'ok');
+  }
 }
 
 /**
