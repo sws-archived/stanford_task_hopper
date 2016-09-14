@@ -1,0 +1,7 @@
+name = Stanford Task Hopper
+description = Provides drush plugin for running optional installation tasks.
+core = 7.x
+package = Stanford
+project = stanford_task_hopper
+version = 7.x-1.x
+
