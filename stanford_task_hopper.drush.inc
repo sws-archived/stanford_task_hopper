@@ -1,12 +1,13 @@
 <?php
 
-define('STH_TASKS_DIR_JSE_INSTALL_CONTENT', DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Content');
 define('STH_INSTALL_PROFILE', variable_get('install_profile'));
 
 libraries_load('tasks');
 
 switch (STH_INSTALL_PROFILE) {
   case "stanford_sites_jumpstart_engineering":
+    define('STH_TASKS_DIR_JSE_INSTALL_CONTENT', DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Content');
+    define('STH_TASKS_DIR_JSE_INSTALL_LAYOUTS', DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Layouts');
     require_once DRUPAL_ROOT . '/profiles/stanford_sites_jumpstart_engineering/includes/InstallTaskInterface.php';
     require_once DRUPAL_ROOT . '/profiles/stanford_sites_jumpstart_engineering/includes/AbstractTask.php';
     require_once DRUPAL_ROOT . '/profiles/stanford_sites_jumpstart_engineering/includes/AbstractInstallTask.php';
@@ -23,6 +24,9 @@ require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/Jumpstart/Instal
 
 require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Content/ImportJSENodes.php';
 require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Content/ImportJSEBeans.php';
+require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Layouts/PicalHomepage.php';
+require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Layouts/PicalPeople.php';
+require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Layouts/Sitewide.php';
 
 /**
  * Implements hook_drush_command().
@@ -34,27 +38,24 @@ function stanford_task_hopper_drush_command() {
     'callback' => 'stanford_task_hopper_jse_get_tasks',
     'drupal dependencies' => array('stanford_task_hopper'),
     'aliases' => array('sth-jse-gt'),
-    //'arguments' => array(
-    //  'site_type' => 'Site content of this type will be installed.',
-    //),
   );
   $items['jse-install-content'] = array(
     'description' => 'Site content of this type will be installed',
     'callback' => 'stanford_task_hopper_jse_install_content',
     'drupal dependencies' => array('stanford_task_hopper'),
     'aliases' => array('sth-jse-ic'),
-    'arguments' => array(
-      'site_type' => 'Site content of this type will be installed.',
-    ),
+  );
+  $items['jse-install-layouts'] = array(
+    'description' => 'Site layouts will be installed',
+    'callback' => 'stanford_task_hopper_jse_install_layouts',
+    'drupal dependencies' => array('stanford_task_hopper'),
+    'aliases' => array('sth-jse-layouts'),
   );
   $items['jse-dept-mods'] = array(
     'description' => 'Site content of this type will be installed',
     'callback' => 'stanford_task_hopper_jse_dept_mods',
     'drupal dependencies' => array('stanford_task_hopper'),
     'aliases' => array('sth-jse-dept-mods'),
-    'arguments' => array(
-      'site_type' => 'Site content of this type will be installed.',
-    ),
   );
   return $items;
 }
@@ -71,7 +72,7 @@ function stanford_task_hopper_jse_get_tasks() {
  */
 function stanford_task_hopper_jse_install_content() {
   $install_profile = STH_INSTALL_PROFILE;
-  if ($install_profile = 'stanford_sites_jumpstart_engineering') {
+  if ($install_profile == 'stanford_sites_jumpstart_engineering') {
     $options = array();
     $choices = scandir(STH_TASKS_DIR_JSE_INSTALL_CONTENT);
     $choices = array_diff($choices, array('..', '.'));
@@ -92,6 +93,40 @@ function stanford_task_hopper_jse_install_content() {
   }
   else {
     drush_log('The drush command sth-jse-ic is only for use with Jumpstart Engineering', 'ok');
+  }
+}
+
+/**
+ * Callback for the jse-install-layouts command
+ */
+function stanford_task_hopper_jse_install_layouts() {
+  $install_profile = STH_INSTALL_PROFILE;
+  if ($install_profile == 'stanford_sites_jumpstart_engineering') {
+    $options = array();
+    $choices = scandir(STH_TASKS_DIR_JSE_INSTALL_LAYOUTS);
+    $choices = array_diff($choices, array('..', '.'));
+    foreach ($choices as $choice) {
+        $options[$choice] = $choice;
+    }
+    $tasks = drush_choice_multiple($options, dt('What tasks do you want to run?'));
+    if (in_array('PicalHomepage.php', $tasks)) {
+      $task = new Stanford\JumpstartEngineering\Install\Layouts\PicalHomepage();
+      $task->execute();
+      drush_log('jse pical homepage installed', 'ok');
+    }
+    if (in_array('PicalPeople.php', $tasks)) {
+      $task = new Stanford\JumpstartEngineering\Install\Layouts\PicalPeople();
+      $task->execute();
+      drush_log('jse pical people installed', 'ok');
+    }
+    if (in_array('Sitewide.php', $tasks)) {
+      $task = new Stanford\JumpstartEngineering\Install\Layouts\Sitewide();
+      $task->execute();
+      drush_log('jse sitewide installed', 'ok');
+    }
+  }
+  else {
+    drush_log('The drush command sth-jse-layouts is only for use with Jumpstart Engineering', 'ok');
   }
 }
 
