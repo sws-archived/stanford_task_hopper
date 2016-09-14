@@ -5,12 +5,13 @@ define('STH_INSTALL_PROFILE', variable_get('install_profile'));
 
 libraries_load('tasks');
 
-
-
-
-require_once DRUPAL_ROOT . '/profiles/stanford_sites_jumpstart_engineering/includes/InstallTaskInterface.php';
-require_once DRUPAL_ROOT . '/profiles/stanford_sites_jumpstart_engineering/includes/AbstractTask.php';
-require_once DRUPAL_ROOT . '/profiles/stanford_sites_jumpstart_engineering/includes/AbstractInstallTask.php';
+switch (STH_INSTALL_PROFILE) {
+  case "stanford_sites_jumpstart_engineering":
+    require_once DRUPAL_ROOT . '/profiles/stanford_sites_jumpstart_engineering/includes/InstallTaskInterface.php';
+    require_once DRUPAL_ROOT . '/profiles/stanford_sites_jumpstart_engineering/includes/AbstractTask.php';
+    require_once DRUPAL_ROOT . '/profiles/stanford_sites_jumpstart_engineering/includes/AbstractInstallTask.php';
+    break;
+}
 
 require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/Jumpstart/Install/Content/Importer/LoadImporterLibrary.php';
 require_once DRUPAL_ROOT . '/sites/all/libraries/stanford_sites_content_importer/SitesContentImporter.php';
@@ -19,6 +20,7 @@ require_once DRUPAL_ROOT . '/sites/all/libraries/stanford_sites_content_importer
 
 require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/Jumpstart/Install/Content/Importer/ImporterFieldProcessorCustomBody.php';
 require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/Jumpstart/Install/Content/Importer/ImporterFieldProcessorCustomFieldSDestinationPublish.php';
+
 require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Content/ImportJSENodes.php';
 require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Content/ImportJSEBeans.php';
 
