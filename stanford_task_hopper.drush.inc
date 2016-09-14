@@ -6,6 +6,8 @@ libraries_load('tasks');
 
 switch (STH_INSTALL_PROFILE) {
   case "stanford_sites_jumpstart_engineering":
+    define('STH_TASKS_DIR_JSE_INSTALL_BLOCK', DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Block');
+    define('STH_TASKS_DIR_JSE_INSTALL_CAPX', DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/CAPx');
     define('STH_TASKS_DIR_JSE_INSTALL_CONTENT', DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Content');
     define('STH_TASKS_DIR_JSE_INSTALL_LAYOUTS', DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Layouts');
     require_once DRUPAL_ROOT . '/profiles/stanford_sites_jumpstart_engineering/includes/InstallTaskInterface.php';
@@ -22,6 +24,10 @@ require_once DRUPAL_ROOT . '/sites/all/libraries/stanford_sites_content_importer
 require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/Jumpstart/Install/Content/Importer/ImporterFieldProcessorCustomBody.php';
 require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/Jumpstart/Install/Content/Importer/ImporterFieldProcessorCustomFieldSDestinationPublish.php';
 
+require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Block/JSEBlockClasses.php';
+require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Block/JSEContextualBlockClasses.php';
+require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/CAPx/CAPxConfig.php';
+require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/CAPx/CAPxDisplay.php';
 require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Content/ImportJSENodes.php';
 require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Content/ImportJSEBeans.php';
 require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Layouts/PicalHomepage.php';
@@ -38,6 +44,18 @@ function stanford_task_hopper_drush_command() {
     'callback' => 'stanford_task_hopper_jse_get_tasks',
     'drupal dependencies' => array('stanford_task_hopper'),
     'aliases' => array('sth-jse-gt'),
+  );
+  $items['jse-install-blocks'] = array(
+    'description' => 'Install jse block classes.',
+    'callback' => 'stanford_task_hopper_jse_install_block',
+    'drupal dependencies' => array('stanford_task_hopper'),
+    'aliases' => array('sth-jse-ib'),
+  );
+  $items['jse-install-capx'] = array(
+    'description' => 'Install jse block classes.',
+    'callback' => 'stanford_task_hopper_jse_install_capx',
+    'drupal dependencies' => array('stanford_task_hopper'),
+    'aliases' => array('sth-jse-capx'),
   );
   $items['jse-install-content'] = array(
     'description' => 'Site content of this type will be installed',
@@ -65,6 +83,74 @@ function stanford_task_hopper_drush_command() {
  */
 function stanford_task_hopper_jse_get_tasks() {
   drush_log('performed get tasks', 'ok');
+}
+
+/**
+ * Callback for the install-content command
+ */
+function stanford_task_hopper_jse_install_block() {
+  $install_profile = STH_INSTALL_PROFILE;
+  if ($install_profile == 'stanford_sites_jumpstart_engineering') {
+    $options = array();
+    $choices = scandir(STH_TASKS_DIR_JSE_INSTALL_BLOCK);
+    $choices = array_diff($choices, array('..', '.'));
+    foreach ($choices as $choice) {
+        $options[$choice] = $choice;
+    }
+    $tasks = drush_choice_multiple($options, dt('What tasks do you want to run?'));
+    if (in_array('JSEBlockClasses.php', $tasks)) {
+      $task = new Stanford\JumpstartEngineering\Install\Block\JSEBlockClasses();
+      $task->execute();
+      drush_log('jse block classes imported', 'ok');
+    }
+    if (in_array('JSEContextualBlockClasses.php', $tasks)) {
+      $task = new Stanford\JumpstartEngineering\Install\Block\JSEContextualBlockClasses();
+      $task->execute();
+      drush_log('jse contextual block classes imported', 'ok');
+    }
+  }
+  else {
+    drush_log('The drush command sth-jse-ic is only for use with Jumpstart Engineering', 'ok');
+  }
+}
+
+/**
+ * Callback for the install-capx command
+ */
+function stanford_task_hopper_jse_install_capx() {
+  $install_profile = STH_INSTALL_PROFILE;
+  if ($install_profile == 'stanford_sites_jumpstart_engineering') {
+    $options = array();
+    $choices = scandir(STH_TASKS_DIR_JSE_INSTALL_CAPX);
+    $choices = array_diff($choices, array('..', '.'));
+    foreach ($choices as $choice) {
+        $options[$choice] = $choice;
+    }
+    $tasks = drush_choice_multiple($options, dt('What tasks do you want to run?'));
+    if (in_array('CAPxConfig.php', $tasks)) {
+      $machine_names = array('default', 'jse_default');
+      $q = db_select('capx_cfe', 'cfe');
+      $q->addField('cfe', 'machine_name');
+      $q->condition('cfe.machine_name', $machine_names, 'IN');
+      $r = $q->execute()->fetchObject();
+      if ($r) {
+        drush_log('jse capx config already imported', 'ok');
+      }
+      else {
+        $task = new Stanford\JumpstartEngineering\Install\CAPx\CAPxConfig();
+        $task->execute();
+        drush_log('jse capx config imported', 'ok');
+    }
+    }
+    if (in_array('CAPxDisplay.php', $tasks)) {
+      $task = new Stanford\JumpstartEngineering\Install\CAPx\CAPxDisplay();
+      $task->execute();
+      drush_log('jse capx display imported', 'ok');
+    }
+  }
+  else {
+    drush_log('The drush command sth-jse-ic is only for use with Jumpstart Engineering', 'ok');
+  }
 }
 
 /**
