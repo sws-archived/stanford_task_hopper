@@ -228,6 +228,11 @@ function stanford_task_hopper_jse_install_menu() {
         $options[$choice] = $choice;
     }
     $tasks = drush_choice_multiple($options, dt('What tasks do you want to run?'));
+    if (in_array('JSEAdminShortcutMenuItems.php', $tasks)) {
+      $task = new Menu\JSEAdminShortcutMenuItems();
+      $task->execute();
+      drush_log('jse admin shortcuts installed', 'ok');
+    }
     if (in_array('JSEMenuItems.php', $tasks)) {
       $task = new Menu\JSEMenuItems();
       $task->execute();
