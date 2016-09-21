@@ -9,17 +9,17 @@ switch (STH_INSTALL_PROFILE) {
     define('STH_TASKS_DIR_JSE_INSTALL_CONTENT', DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Content');
     define('STH_TASKS_DIR_JSE_INSTALL_LAYOUTS', DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Layouts');
     define('STH_TASKS_DIR_JSE_INSTALL_MENU', DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Menu');
+    define('STH_TASKS_DIR_JSE_INSTALL_USERS', DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Users');
     require_once DRUPAL_ROOT . '/profiles/stanford_sites_jumpstart_engineering/includes/InstallTaskInterface.php';
     require_once DRUPAL_ROOT . '/profiles/stanford_sites_jumpstart_engineering/includes/AbstractTask.php';
     require_once DRUPAL_ROOT . '/profiles/stanford_sites_jumpstart_engineering/includes/AbstractInstallTask.php';
     break;
 }
 
-//require_once DRUPAL_ROOT . '/sites/all/modules/stanford_jumpstart_home/stanford_jumpstart_home.context.inc';
+require_once DRUPAL_ROOT . '/includes/password.inc';
 require_once DRUPAL_ROOT . '/sites/all/libraries/stanford_sites_content_importer/SitesContentImporter.php';
 require_once DRUPAL_ROOT . '/sites/all/libraries/stanford_sites_content_importer/SitesContentImporterViews.php';
 require_once DRUPAL_ROOT . '/sites/all/libraries/stanford_sites_content_importer/ImporterFieldProcessor.php';
-
 require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/autoloader.php';
 
 use Stanford\JumpstartEngineering\Install\Block;
@@ -27,6 +27,7 @@ use Stanford\JumpstartEngineering\Install\CAPx;
 use Stanford\JumpstartEngineering\Install\Content;
 use Stanford\JumpstartEngineering\Install\Layouts;
 use Stanford\JumpstartEngineering\Install\Menu;
+use Stanford\JumpstartEngineering\Install\Users;
 
 /**
  * Implements hook_drush_command().
@@ -69,6 +70,13 @@ function stanford_task_hopper_drush_command() {
     'callback' => 'stanford_task_hopper_jse_install_menu',
     'drupal dependencies' => array('stanford_task_hopper'),
     'aliases' => array('sth-jse-menu'),
+  );
+  $items['jse-install-users'] = array(
+    'description' => 'Site layouts will be installed',
+    'callback' => 'stanford_task_hopper_jse_install_users',
+    'drupal dependencies' => array('stanford_task_hopper'),
+    'aliases' => array('sth-jse-users'),
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_SITE,
   );
   $items['jse-dept-mods'] = array(
     'description' => 'Site content of this type will be installed',
@@ -269,6 +277,47 @@ function stanford_task_hopper_jse_install_menu() {
   }
   else {
     drush_log('The drush command sth-jse-menu is only for use with Jumpstart Engineering', 'ok');
+  }
+}
+
+/**
+ * Callback for the jse-install-users command
+ */
+function stanford_task_hopper_jse_install_users() {
+  $install_profile = STH_INSTALL_PROFILE;
+  if ($install_profile == 'stanford_sites_jumpstart_engineering') {
+    $options = array();
+    $choices = scandir(STH_TASKS_DIR_JSE_INSTALL_USERS);
+    $choices = array_diff($choices, array('..', '.'));
+    foreach ($choices as $choice) {
+        $options[$choice] = $choice;
+    }
+    $tasks = drush_choice_multiple($options, dt('What tasks do you want to run?'));
+    if (in_array('RichardUser.php', $tasks)) {
+      $richard = user_load_by_name('richard');
+        if (!$richard) {
+        $task = new Users\RichardUser();
+        $task->execute();
+        drush_log('jse user richard installed', 'ok');
+      }
+      else {
+        drush_log('jse user richard already installed', 'ok');
+      }
+    }
+    if (in_array('UserOne.php', $tasks)) {
+      $user_one = user_load_by_name('admin');
+      if (!$user_one) {
+      $task = new Users\UserOne();
+      $task->execute();
+      drush_log('jse user one installed', 'ok');
+      }
+      else {
+        drush_log('jse user one already installed', 'ok');
+      }
+    }
+  }
+  else {
+    drush_log('The drush command sth-jse-users is only for use with Jumpstart Engineering', 'ok');
   }
 }
 
