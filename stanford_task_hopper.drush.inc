@@ -15,9 +15,11 @@ switch (STH_INSTALL_PROFILE) {
     break;
 }
 
+//require_once DRUPAL_ROOT . '/sites/all/modules/stanford_jumpstart_home/stanford_jumpstart_home.context.inc';
 require_once DRUPAL_ROOT . '/sites/all/libraries/stanford_sites_content_importer/SitesContentImporter.php';
 require_once DRUPAL_ROOT . '/sites/all/libraries/stanford_sites_content_importer/SitesContentImporterViews.php';
 require_once DRUPAL_ROOT . '/sites/all/libraries/stanford_sites_content_importer/ImporterFieldProcessor.php';
+
 require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/autoloader.php';
 
 use Stanford\JumpstartEngineering\Install\Block;
@@ -199,10 +201,10 @@ function stanford_task_hopper_jse_install_layouts() {
         $options[$choice] = $choice;
     }
     $tasks = drush_choice_multiple($options, dt('What tasks do you want to run?'));
-    if (in_array('DeptsHomepage.php', $tasks)) {
-      $task = new Layouts\DeptsHomepage();
+    if (in_array('DeptHomepage.php', $tasks)) {
+      $task = new Layouts\DeptHomepage();
       $task->execute();
-      drush_log('JSE Departments homepage installed', 'ok');
+      drush_log('JSE Department homepage installed', 'ok');
     }
     if (in_array('PicalHomepage.php', $tasks)) {
       $task = new Layouts\PicalHomepage();
@@ -285,7 +287,7 @@ function stanford_task_hopper_jse_dept_mods(&$args = array()) {
   drush_log('Custom beans imported', 'ok');
 
   // Install the Department homepage layout.
-  $task = new Layouts\DeptsHomepage();
+  $task = new Layouts\DeptHomepage();
   $task->execute();
   drush_log('JSE Departments homepage installed', 'ok');
 

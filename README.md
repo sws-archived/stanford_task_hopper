@@ -1,7 +1,7 @@
 #[Stanford Task Hopper](https://github.com/SU-SWS/stanford_task_hopper)
 ##### Version: 7.x-1.x
 
-Maintainer: [boznik](https://github.com/boznik)
+Maintainer: [boznik](https://github.com/boznik), [cjwest](https://github.com/cjwest)
 
 [Changelog.txt](CHANGELOG.txt)
 
