@@ -168,19 +168,18 @@ function stanford_task_hopper_jse_install_content() {
     if (in_array('ImportJSENodes.php', $tasks)) {
       $task = new Content\ImportJSENodes();
       $task->execute();
-      drush_log('jse nodes imported', 'ok');
+      drush_log('JSE nodes imported', 'ok');
     }
     if (in_array('ImportJSEBeans.php', $tasks)) {
       $task = new Content\ImportJSEBeans();
       $task->execute();
-      drush_log('jse beans imported', 'ok');
+      drush_log('JSE beans imported', 'ok');
     }
-    if (in_array('ImportJSEGibbonsBeans.php', $tasks)) {
-      $task = new Content\ImportJSEGibbonsBeans();
+    if (in_array('ImportJSECustomBeans.php', $tasks)) {
+      $task = new Content\ImportJSECustomBeans();
       $task->execute();
-      drush_log('jse beans for Gibbons layout imported', 'ok');
+      drush_log('JSE custom beans imported', 'ok');
     }
-
   }
   else {
     drush_log('The drush command sth-jse-ic is only for use with Jumpstart Engineering', 'ok');
