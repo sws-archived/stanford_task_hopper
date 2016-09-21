@@ -199,21 +199,27 @@ function stanford_task_hopper_jse_install_layouts() {
         $options[$choice] = $choice;
     }
     $tasks = drush_choice_multiple($options, dt('What tasks do you want to run?'));
+    if (in_array('DeptsHomepage.php', $tasks)) {
+      $task = new Layouts\DeptsHomepage();
+      $task->execute();
+      drush_log('JSE Departments homepage installed', 'ok');
+    }
     if (in_array('PicalHomepage.php', $tasks)) {
       $task = new Layouts\PicalHomepage();
       $task->execute();
-      drush_log('jse pical homepage installed', 'ok');
+      drush_log('JSE pical homepage installed', 'ok');
     }
     if (in_array('PicalPeople.php', $tasks)) {
       $task = new Layouts\PicalPeople();
       $task->execute();
-      drush_log('jse pical people installed', 'ok');
+      drush_log('JSE pical people installed', 'ok');
     }
     if (in_array('Sitewide.php', $tasks)) {
       $task = new Layouts\Sitewide();
       $task->execute();
-      drush_log('jse sitewide installed', 'ok');
+      drush_log('JSE sitewide installed', 'ok');
     }
+
   }
   else {
     drush_log('The drush command sth-jse-layouts is only for use with Jumpstart Engineering', 'ok');
@@ -272,5 +278,16 @@ function stanford_task_hopper_jse_dept_mods(&$args = array()) {
   module_enable(array(
     //"<module-name-goes-here>",
   ));
+
+  // Install the custom beans for the homepage layout.
+  $task = new Content\ImportJSECustomBeans();
+  $task->execute();
+  drush_log('Custom beans imported', 'ok');
+
+  // Install the Department homepage layout.
+  $task = new Layouts\DeptsHomepage();
+  $task->execute();
+  drush_log('JSE Departments homepage installed', 'ok');
+
   drush_log('dept modules enabled', 'ok');
 }
