@@ -63,7 +63,7 @@ function stanford_task_hopper_drush_command() {
     'callback' => 'stanford_task_hopper_jse_install_layouts',
     'drupal dependencies' => array('stanford_task_hopper', 'stanford_jumpstart_home'),
     'aliases' => array('sth-jse-layouts'),
-    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_SITE,
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
   );
   $items['jse-install-menu'] = array(
     'description' => 'Site layouts will be installed',
@@ -200,6 +200,7 @@ function stanford_task_hopper_jse_install_content() {
  * Callback for the jse-install-layouts command
  */
 function stanford_task_hopper_jse_install_layouts() {
+  module_load_include('inc', 'stanford_jumpstart_home', 'stanford_jumpstart_home.context.inc');
   $install_profile = STH_INSTALL_PROFILE;
   if ($install_profile == 'stanford_sites_jumpstart_engineering') {
     $options = array();
