@@ -326,10 +326,14 @@ function stanford_task_hopper_jse_install_users() {
  * Callback for the jse-dept-mods command
  */
 function stanford_task_hopper_jse_dept_mods(&$args = array()) {
-  
-  module_enable(array(
-    //"<module-name-goes-here>",
-  ));
+
+  $task = new Block\JSEBlockClasses();
+  $task->execute();
+  drush_log('jse block classes imported', 'ok');
+
+  $task = new Block\JSEContextualBlockClasses();
+  $task->execute();
+  drush_log('jse contextual block classes imported', 'ok');
 
   // Install the custom beans for the homepage layout.
   $task = new Content\ImportJSECustomBeans();
@@ -337,9 +341,13 @@ function stanford_task_hopper_jse_dept_mods(&$args = array()) {
   drush_log('Custom beans imported', 'ok');
 
   // Install the Department homepage layout.
-  $task = new Layouts\DeptHomepage();
-  $task->execute();
-  drush_log('JSE Departments homepage installed', 'ok');
+  //$task = new Layouts\DeptHomepage();
+  //$task->execute();
+  //drush_log('JSE Departments homepage installed', 'ok');
 
-  drush_log('dept modules enabled', 'ok');
+  module_enable(array(
+    'stanford_jumpstart_home_dept',
+  ));
+
+  drush_log('stanford_jumpstart_home_dept module enabled', 'ok');
 }
