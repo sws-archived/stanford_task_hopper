@@ -13,6 +13,7 @@ switch (STH_INSTALL_PROFILE) {
     require_once DRUPAL_ROOT . '/profiles/stanford_sites_jumpstart_engineering/includes/InstallTaskInterface.php';
     require_once DRUPAL_ROOT . '/profiles/stanford_sites_jumpstart_engineering/includes/AbstractTask.php';
     require_once DRUPAL_ROOT . '/profiles/stanford_sites_jumpstart_engineering/includes/AbstractInstallTask.php';
+
     break;
 }
 
@@ -210,11 +211,6 @@ function stanford_task_hopper_jse_install_layouts() {
         $options[$choice] = $choice;
     }
     $tasks = drush_choice_multiple($options, dt('What tasks do you want to run?'));
-    if (in_array('DeptHomepage.php', $tasks)) {
-      $task = new Layouts\DeptHomepage();
-      $task->execute();
-      drush_log('JSE Department homepage installed', 'ok');
-    }
     if (in_array('PicalHomepage.php', $tasks)) {
       $task = new Layouts\PicalHomepage();
       $task->execute();
