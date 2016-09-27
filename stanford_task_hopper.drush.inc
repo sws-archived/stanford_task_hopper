@@ -2,14 +2,26 @@
 
 define('STH_INSTALL_PROFILE', variable_get('install_profile'));
 
+$path = DRUPAL_ROOT . '/sites/default/libraries';
+
+function tasks_location($path) {
+  if (is_dir($path)) {
+    define('LIBRARY_PATH', $path);
+  } else {
+    define('LIBRARY_PATH', DRUPAL_ROOT . '/sites/all/libraries');
+  }
+}
+
+$tasks_path = tasks_location($path);
+
 switch (STH_INSTALL_PROFILE) {
   case "stanford_sites_jumpstart_engineering":
-    define('STH_TASKS_DIR_JSE_INSTALL_BLOCK', DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Block');
-    define('STH_TASKS_DIR_JSE_INSTALL_CAPX', DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/CAPx');
-    define('STH_TASKS_DIR_JSE_INSTALL_CONTENT', DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Content');
-    define('STH_TASKS_DIR_JSE_INSTALL_LAYOUTS', DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Layouts');
-    define('STH_TASKS_DIR_JSE_INSTALL_MENU', DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Menu');
-    define('STH_TASKS_DIR_JSE_INSTALL_USERS', DRUPAL_ROOT . '/sites/all/libraries/tasks/Stanford/JumpstartEngineering/Install/Users');
+    define('STH_TASKS_DIR_JSE_INSTALL_BLOCK', LIBRARY_PATH .'/tasks/Stanford/JumpstartEngineering/Install/Block');
+    define('STH_TASKS_DIR_JSE_INSTALL_CAPX', LIBRARY_PATH  . '/tasks/Stanford/JumpstartEngineering/Install/CAPx');
+    define('STH_TASKS_DIR_JSE_INSTALL_CONTENT', LIBRARY_PATH  . '/tasks/Stanford/JumpstartEngineering/Install/Content');
+    define('STH_TASKS_DIR_JSE_INSTALL_LAYOUTS', LIBRARY_PATH  . '/tasks/Stanford/JumpstartEngineering/Install/Layouts');
+    define('STH_TASKS_DIR_JSE_INSTALL_MENU', LIBRARY_PATH . '/tasks/Stanford/JumpstartEngineering/Install/Menu');
+    define('STH_TASKS_DIR_JSE_INSTALL_USERS', LIBRARY_PATH  . '/tasks/Stanford/JumpstartEngineering/Install/Users');
     require_once DRUPAL_ROOT . '/profiles/stanford_sites_jumpstart_engineering/includes/InstallTaskInterface.php';
     require_once DRUPAL_ROOT . '/profiles/stanford_sites_jumpstart_engineering/includes/AbstractTask.php';
     require_once DRUPAL_ROOT . '/profiles/stanford_sites_jumpstart_engineering/includes/AbstractInstallTask.php';
@@ -17,10 +29,10 @@ switch (STH_INSTALL_PROFILE) {
 }
 
 require_once DRUPAL_ROOT . '/includes/password.inc';
-require_once DRUPAL_ROOT . '/sites/all/libraries/stanford_sites_content_importer/SitesContentImporter.php';
-require_once DRUPAL_ROOT . '/sites/all/libraries/stanford_sites_content_importer/SitesContentImporterViews.php';
-require_once DRUPAL_ROOT . '/sites/all/libraries/stanford_sites_content_importer/ImporterFieldProcessor.php';
-require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/autoloader.php';
+require_once LIBRARY_PATH . '/stanford_sites_content_importer/SitesContentImporter.php';
+require_once LIBRARY_PATH . '/stanford_sites_content_importer/SitesContentImporterViews.php';
+require_once LIBRARY_PATH . '/stanford_sites_content_importer/ImporterFieldProcessor.php';
+require_once LIBRARY_PATH . '/tasks/autoloader.php';
 
 use Stanford\JumpstartEngineering\Install\Block;
 use Stanford\JumpstartEngineering\Install\CAPx;
