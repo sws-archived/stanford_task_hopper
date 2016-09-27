@@ -4,15 +4,11 @@ define('STH_INSTALL_PROFILE', variable_get('install_profile'));
 
 $path = DRUPAL_ROOT . '/sites/default/libraries';
 
-function tasks_location($path) {
-  if (is_dir($path)) {
-    define('LIBRARY_PATH', $path);
-  } else {
-    define('LIBRARY_PATH', DRUPAL_ROOT . '/sites/all/libraries');
-  }
+if (is_dir($path)) {
+  define('LIBRARY_PATH', $path);
+} else {
+  define('LIBRARY_PATH', DRUPAL_ROOT . '/sites/all/libraries');
 }
-
-$tasks_path = tasks_location($path);
 
 switch (STH_INSTALL_PROFILE) {
   case "stanford_sites_jumpstart_engineering":
