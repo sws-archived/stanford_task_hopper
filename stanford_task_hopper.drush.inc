@@ -23,6 +23,9 @@ require_once DRUPAL_ROOT . '/sites/all/libraries/stanford_sites_content_importer
 require_once DRUPAL_ROOT . '/sites/all/libraries/stanford_sites_content_importer/ImporterFieldProcessor.php';
 require_once DRUPAL_ROOT . '/sites/all/libraries/tasks/autoloader.php';
 
+//require_once DRUPAL_ROOT . drupal_get_path('library', 'tasks');
+
+
 use Stanford\JumpstartEngineering\Install\Block;
 use Stanford\JumpstartEngineering\Install\CAPx;
 use Stanford\JumpstartEngineering\Install\Content;
@@ -80,10 +83,17 @@ function stanford_task_hopper_drush_command() {
     'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_SITE,
   );
   $items['jse-dept-mods'] = array(
-    'description' => 'Site content of this type will be installed',
+    'description' =>
+    'This imports content and enables modules for department sites on a JSE (PICAL) site',
     'callback' => 'stanford_task_hopper_jse_dept_mods',
     'drupal dependencies' => array('stanford_task_hopper'),
     'aliases' => array('sth-jse-dept-mods'),
+  );
+  $items['jse-dept-unmods'] = array(
+    'description' => 'This reverts the actions jse_dept_mods command.',
+    'callback' => 'stanford_task_hopper_jse_dept_unmods',
+    'drupal dependencies' => array('stanford_task_hopper'),
+    'aliases' => array('sth-jse-dept-unmods'),
   );
   return $items;
 }
@@ -320,8 +330,14 @@ function stanford_task_hopper_jse_install_users() {
 
 /**
  * Callback for the jse-dept-mods command
+ * @param array $args
+ *
+ * This imports content and enables modules for department sites
+ * on a JSE (PICAL) site
  */
 function stanford_task_hopper_jse_dept_mods(&$args = array()) {
+
+  // Todo: verify this is a JSE site.
 
   // Install the custom beans and css classes for the homepage layout.
   $task = new Content\ImportJSECustomBeans();
@@ -336,9 +352,25 @@ function stanford_task_hopper_jse_dept_mods(&$args = array()) {
   $task->execute();
   drush_log('jse contextual block classes imported', 'ok');
 
-  module_enable(array(
-    'stanford_jumpstart_home_dept',
-  ));
+  $modules = array('stanford_jumpstart_home_dept', 'stanford_jse_dept',);
+  module_enable($modules);
 
-  drush_log('stanford_jumpstart_home_dept module enabled', 'ok');
+  drush_log('Enabled modules: ' . implode(', ', $modules), 'ok');
+}
+
+/**
+ * Callback for the jse-dept-unmods command
+ * @param array $args
+ *
+ * This reverts the jse_dept_mods command. Well, as much as possible.
+ * It disables modules for department sites
+ * on a JSE (PICAL) site
+ */
+function stanford_task_hopper_jse_dept_unmods(&$args = array()) {
+
+  $modules = array('stanford_jumpstart_home_dept', 'stanford_jse_dept',);
+  module_disable($modules);
+  module_uninstall_modules($modules);
+
+  drush_log('Disabled and uninstalled modules: ' . implode(', ', $modules), 'ok');
 }
