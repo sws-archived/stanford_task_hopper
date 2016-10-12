@@ -374,7 +374,7 @@ function stanford_task_hopper_jse_dept_unmods(&$args = array()) {
 
   $modules = array('stanford_jumpstart_home_dept', 'stanford_jse_dept',);
   module_disable($modules);
-  module_uninstall_modules($modules);
+  drupal_uninstall_modules($modules);
 
   drush_log('Disabled and uninstalled modules: ' . implode(', ', $modules), 'ok');
 }
