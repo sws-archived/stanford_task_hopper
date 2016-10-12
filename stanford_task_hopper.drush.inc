@@ -357,9 +357,12 @@ function stanford_task_hopper_jse_dept_mods(&$args = array()) {
   drush_log('jse contextual block classes imported', 'ok');
 
   $modules = array('stanford_jumpstart_home_dept', 'stanford_jse_dept',);
-  module_enable($modules);
-
-  drush_log('Enabled modules: ' . implode(', ', $modules), 'ok');
+  if (module_enable($modules)) {
+    drush_log('Enabled modules: ' . implode(', ', $modules), 'ok');
+  } else
+  {
+    drush_log('Error when enabling modules: ' . implode(', ', $modules), 'notice');
+  }
 }
 
 /**
@@ -374,7 +377,11 @@ function stanford_task_hopper_jse_dept_unmods(&$args = array()) {
 
   $modules = array('stanford_jumpstart_home_dept', 'stanford_jse_dept',);
   module_disable($modules);
-  drupal_uninstall_modules($modules);
 
-  drush_log('Disabled and uninstalled modules: ' . implode(', ', $modules), 'ok');
+  if (drupal_uninstall_modules($modules)) {
+    drush_log('Disabled and uninstalled modules: ' . implode(', ', $modules), 'ok');
+  } else
+  {
+    drush_log('Error when uninstalling modules: ' . implode(', ', $modules), 'notice');
+  }
 }
