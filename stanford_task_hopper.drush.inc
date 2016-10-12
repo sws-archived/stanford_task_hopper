@@ -30,9 +30,6 @@ require_once LIBRARY_PATH . '/stanford_sites_content_importer/SitesContentImport
 require_once LIBRARY_PATH . '/stanford_sites_content_importer/ImporterFieldProcessor.php';
 require_once LIBRARY_PATH . '/tasks/autoloader.php';
 
-//require_once DRUPAL_ROOT . drupal_get_path('library', 'tasks');
-
-
 use Stanford\JumpstartEngineering\Install\Block;
 use Stanford\JumpstartEngineering\Install\CAPx;
 use Stanford\JumpstartEngineering\Install\Content;
