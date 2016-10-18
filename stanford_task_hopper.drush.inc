@@ -95,10 +95,17 @@ function stanford_task_hopper_drush_command() {
     'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_SITE,
   );
   $items['jse-dept-mods'] = array(
-    'description' => 'Site content of this type will be installed',
+    'description' =>
+    'This imports content and enables modules for department sites on a JSE (PICAL) site',
     'callback' => 'stanford_task_hopper_jse_dept_mods',
     'drupal dependencies' => array('stanford_task_hopper'),
     'aliases' => array('sth-jse-dept-mods'),
+  );
+  $items['jse-dept-unmods'] = array(
+    'description' => 'This reverts the actions jse_dept_mods command.',
+    'callback' => 'stanford_task_hopper_jse_dept_unmods',
+    'drupal dependencies' => array('stanford_task_hopper'),
+    'aliases' => array('sth-jse-dept-unmods'),
   );
   return $items;
 }
@@ -194,12 +201,17 @@ function stanford_task_hopper_jse_install_content() {
     if (in_array('ImportJSENodes.php', $tasks)) {
       $task = new Content\ImportJSENodes();
       $task->execute();
-      drush_log('jse nodes imported', 'ok');
+      drush_log('JSE nodes imported', 'ok');
     }
     if (in_array('ImportJSEBeans.php', $tasks)) {
       $task = new Content\ImportJSEBeans();
       $task->execute();
-      drush_log('jse beans imported', 'ok');
+      drush_log('JSE beans imported', 'ok');
+    }
+    if (in_array('ImportJSECustomBeans.php', $tasks)) {
+      $task = new Content\ImportJSECustomBeans();
+      $task->execute();
+      drush_log('JSE custom beans imported', 'ok');
     }
   }
   else {
@@ -224,18 +236,19 @@ function stanford_task_hopper_jse_install_layouts() {
     if (in_array('PicalHomepage.php', $tasks)) {
       $task = new Layouts\PicalHomepage();
       $task->execute();
-      drush_log('jse pical homepage installed', 'ok');
+      drush_log('JSE pical homepage installed', 'ok');
     }
     if (in_array('PicalPeople.php', $tasks)) {
       $task = new Layouts\PicalPeople();
       $task->execute();
-      drush_log('jse pical people installed', 'ok');
+      drush_log('JSE pical people installed', 'ok');
     }
     if (in_array('Sitewide.php', $tasks)) {
       $task = new Layouts\Sitewide();
       $task->execute();
-      drush_log('jse sitewide installed', 'ok');
+      drush_log('JSE sitewide installed', 'ok');
     }
+
   }
   else {
     drush_log('The drush command sth-jse-layouts is only for use with Jumpstart Engineering', 'ok');
@@ -329,11 +342,54 @@ function stanford_task_hopper_jse_install_users() {
 
 /**
  * Callback for the jse-dept-mods command
+ * @param array $args
+ *
+ * This imports content and enables modules for department sites
+ * on a JSE (PICAL) site
  */
 function stanford_task_hopper_jse_dept_mods(&$args = array()) {
-  
-  module_enable(array(
-    //"<module-name-goes-here>",
-  ));
-  drush_log('dept modules enabled', 'ok');
+
+  // Todo: verify this is a JSE site.
+
+  // Install the custom beans and css classes for the homepage layout.
+  $task = new Content\ImportJSECustomBeans();
+  $task->execute();
+  drush_log('Custom beans imported', 'ok');
+
+  $task = new Block\JSEBlockClasses();
+  $task->execute();
+  drush_log('jse block classes imported', 'ok');
+
+  $task = new Block\JSEContextualBlockClasses();
+  $task->execute();
+  drush_log('jse contextual block classes imported', 'ok');
+
+  $modules = array('stanford_jumpstart_home_dept', 'stanford_jse_dept',);
+  if (module_enable($modules)) {
+    drush_log('Enabled modules: ' . implode(', ', $modules), 'ok');
+  } else
+  {
+    drush_log('Error when enabling modules: ' . implode(', ', $modules), 'notice');
+  }
+}
+
+/**
+ * Callback for the jse-dept-unmods command
+ * @param array $args
+ *
+ * This reverts the jse_dept_mods command. Well, as much as possible.
+ * It disables modules for department sites
+ * on a JSE (PICAL) site
+ */
+function stanford_task_hopper_jse_dept_unmods(&$args = array()) {
+
+  $modules = array('stanford_jumpstart_home_dept', 'stanford_jse_dept',);
+  module_disable($modules);
+
+  if (drupal_uninstall_modules($modules)) {
+    drush_log('Disabled and uninstalled modules: ' . implode(', ', $modules), 'ok');
+  } else
+  {
+    drush_log('Error when uninstalling modules: ' . implode(', ', $modules), 'notice');
+  }
 }
