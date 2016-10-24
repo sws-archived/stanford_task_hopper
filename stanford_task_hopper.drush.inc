@@ -62,8 +62,14 @@ function stanford_task_hopper_drush_command() {
     'drupal dependencies' => array('stanford_task_hopper'),
     'aliases' => array('sth-jse-ib'),
   );
+  $items['jse-install-courses'] = array(
+    'description' => 'Install courses for JSE.',
+    'callback' => 'stanford_task_hopper_jse_install_courses',
+    'drupal dependencies' => array('stanford_task_hopper'),
+    'aliases' => array('sth-jse-courses'),
+  );
   $items['jse-install-capx'] = array(
-    'description' => 'Install jse block classes.',
+    'description' => 'Install capx for jse.',
     'callback' => 'stanford_task_hopper_jse_install_capx',
     'drupal dependencies' => array('stanford_task_hopper'),
     'aliases' => array('sth-jse-capx'),
@@ -364,7 +370,8 @@ function stanford_task_hopper_jse_dept_mods(&$args = array()) {
   $task->execute();
   drush_log('jse contextual block classes imported', 'ok');
 
-  $modules = array('stanford_jumpstart_home_dept', 'stanford_jse_dept',);
+  $modules = array('stanford_jumpstart_home_dept', 'stanford_jse_dept',
+    'stanford_courses', 'stanford_courses_views', 'stanford_courses_administration' );
   if (module_enable($modules)) {
     drush_log('Enabled modules: ' . implode(', ', $modules), 'ok');
   } else
