@@ -29,6 +29,7 @@ switch (STH_INSTALL_PROFILE) {
     define('STH_TASKS_DIR_JSE_INSTALL_BLOCK', STANFORD_TASKS_PATH .'/Stanford/JumpstartEngineering/Install/Block');
     define('STH_TASKS_DIR_JSE_INSTALL_CAPX', STANFORD_TASKS_PATH  . '/Stanford/JumpstartEngineering/Install/CAPx');
     define('STH_TASKS_DIR_JSE_INSTALL_CONTENT', STANFORD_TASKS_PATH  . '/Stanford/JumpstartEngineering/Install/Content');
+    define('STH_TASKS_DIR_JSE_INSTALL_COURSES', STANFORD_TASKS_PATH  . '/Stanford/JumpstartEngineering/Install/Courses');
     define('STH_TASKS_DIR_JSE_INSTALL_LAYOUTS', STANFORD_TASKS_PATH  . '/Stanford/JumpstartEngineering/Install/Layouts');
     define('STH_TASKS_DIR_JSE_INSTALL_MENU', STANFORD_TASKS_PATH . '/Stanford/JumpstartEngineering/Install/Menu');
     define('STH_TASKS_DIR_JSE_INSTALL_USERS', STANFORD_TASKS_PATH  . '/Stanford/JumpstartEngineering/Install/Users');
@@ -48,6 +49,7 @@ require_once STANFORD_TASKS_PATH . '/autoloader.php';
 use Stanford\JumpstartEngineering\Install\Block;
 use Stanford\JumpstartEngineering\Install\CAPx;
 use Stanford\JumpstartEngineering\Install\Content;
+use Stanford\JumpstartEngineering\Install\Courses;
 use Stanford\JumpstartEngineering\Install\Layouts;
 use Stanford\JumpstartEngineering\Install\Menu;
 use Stanford\JumpstartEngineering\Install\Users;
@@ -428,7 +430,7 @@ function stanford_task_hopper_jse_install_courses(&$args = array()) {
     'stanford_course_views', 'stanford_courses_administration');
 
   // Install the css block classes for the courses pages.
-  $task = new Block\CoursesBlockClasses();
+  $task = new Courses\CoursesBlockClasses();
   $task->execute();
 
   if (module_enable($modules, TRUE)) {
