@@ -390,6 +390,7 @@ function stanford_task_hopper_jse_dept_mods(&$args = array()) {
   {
     drush_log('Error when enabling modules: ' . implode(', ', $modules), 'notice');
   }
+  stanford_task_hopper_jse_install_courses($args);
 }
 
 /**
@@ -411,6 +412,7 @@ function stanford_task_hopper_jse_dept_unmods(&$args = array()) {
   {
     drush_log('Error when uninstalling modules: ' . implode(', ', $modules), 'notice');
   }
+  stanford_task_hopper_jse_uninstall_courses($args);
 }
 
 /**
