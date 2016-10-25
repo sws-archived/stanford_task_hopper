@@ -1,4 +1,10 @@
 <?php
+/**
+ * @file
+ * Stanford Task Hopper Drush Commands
+ *
+ * If your module will not enable, check to see if it has any dependencies.
+ */
 
 define('STH_INSTALL_PROFILE', variable_get('install_profile'));
 
@@ -33,6 +39,7 @@ switch (STH_INSTALL_PROFILE) {
 }
 
 require_once DRUPAL_ROOT . '/includes/password.inc';
+require_once DRUPAL_ROOT . '/includes/install.inc';
 require_once STANFORD_SITES_CONTENT_IMPORTER . '/SitesContentImporter.php';
 require_once STANFORD_SITES_CONTENT_IMPORTER . '/SitesContentImporterViews.php';
 require_once STANFORD_SITES_CONTENT_IMPORTER . '/ImporterFieldProcessor.php';
@@ -63,10 +70,16 @@ function stanford_task_hopper_drush_command() {
     'aliases' => array('sth-jse-ib'),
   );
   $items['jse-install-courses'] = array(
-    'description' => 'Install courses for JSE.',
+    'description' => 'Install courses modules for JSE.',
     'callback' => 'stanford_task_hopper_jse_install_courses',
     'drupal dependencies' => array('stanford_task_hopper'),
-    'aliases' => array('sth-jse-courses'),
+    'aliases' => array('sth-jse-install-courses'),
+  );
+  $items['jse-uninstall-courses'] = array(
+    'description' => 'Uninstall courses for JSE.',
+    'callback' => 'stanford_task_hopper_jse_uninstall_courses',
+    'drupal dependencies' => array('stanford_task_hopper'),
+    'aliases' => array('sth-jse-uninstall-courses'),
   );
   $items['jse-install-capx'] = array(
     'description' => 'Install capx for jse.',
@@ -370,8 +383,7 @@ function stanford_task_hopper_jse_dept_mods(&$args = array()) {
   $task->execute();
   drush_log('jse contextual block classes imported', 'ok');
 
-  $modules = array('stanford_jumpstart_home_dept', 'stanford_jse_dept',
-    'stanford_courses', 'stanford_courses_views', 'stanford_courses_administration' );
+  $modules = array('stanford_jumpstart_home_dept', 'stanford_jse_dept');
   if (module_enable($modules)) {
     drush_log('Enabled modules: ' . implode(', ', $modules), 'ok');
   } else
@@ -402,34 +414,37 @@ function stanford_task_hopper_jse_dept_unmods(&$args = array()) {
 }
 
 /**
- * Callback for the jse-uninstall-courses command
- * @param array $args
- *
- * This installs the courses modules for JSE.
- */
-function stanford_task_hopper_jse_uninstall_courses(&$args = array()) {
-  $modules = array('stanford_courses', 'stanford_courses_views', 'stanford_courses_administration' );
-  if (drupal_uninstall_modules($modules)) {
-    drush_log('Disabled and uninstalled modules: ' . implode(', ', $modules), 'ok');
-  } else
-  {
-    drush_log('Error when uninstalling modules: ' . implode(', ', $modules), 'notice');
-  }
-}
-
-/**
  * Callback for the jse-install-courses command
  * @param array $args
  *
  * This installs the courses modules for JSE.
  */
 function stanford_task_hopper_jse_install_courses(&$args = array()) {
-  $modules = array('stanford_courses', 'stanford_courses_views', 'stanford_courses_administration' );
-  if (module_enable($modules)) {
+  $modules = array('stanford_feeds_helper', 'stanford_courses',
+    'stanford_course_views', 'stanford_courses_administration');
+  //, 'stanford_courses', 'stanford_courses_views', 'stanford_courses_administration' );
+  if (module_enable($modules, TRUE)) {
     drush_log('Enabled modules: ' . implode(', ', $modules), 'ok');
   } else
   {
     drush_log('Error when enabling modules: ' . implode(', ', $modules), 'notice');
+  }
+}
+
+/**
+ * Callback for the jse-uninstall-courses command
+ * @param array $args
+ *
+ * This uninstalls the courses modules for JSE.
+ */
+function stanford_task_hopper_jse_uninstall_courses(&$args = array()) {
+  $modules = array('stanford_courses', 'stanford_course_views',
+    'stanford_courses_administration', 'stanford_feeds_helper' );
+  if (drupal_uninstall_modules($modules, FALSE)) {
+    drush_log('Disabled and uninstalled modules: ' . implode(', ', $modules), 'ok');
+  } else
+  {
+    drush_log('Error when uninstalling modules: ' . implode(', ', $modules), 'notice');
   }
 }
 
