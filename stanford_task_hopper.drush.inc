@@ -429,10 +429,6 @@ function stanford_task_hopper_jse_install_courses(&$args = array()) {
   $modules = array('stanford_feeds_helper', 'stanford_courses',
     'stanford_course_views', 'stanford_courses_administration');
 
-  // Install the css block classes for the courses pages.
-  $task = new Courses\CoursesBlockClasses();
-  $task->execute();
-
   if (module_enable($modules, TRUE)) {
     drush_log('Enabled modules: ' . implode(', ', $modules), 'ok');
     // Todo: revert stanford_course_views
@@ -442,6 +438,13 @@ function stanford_task_hopper_jse_install_courses(&$args = array()) {
     exit();
   }
 
+  // Install the css block classes for the courses pages.
+  $task = new Courses\CoursesBlockClasses();
+  $task->execute();
+
+  // Install the menu position rule for courses
+  $task = new Courses\CoursesMenuPositionRules();
+  $task->execute();
 
   // Unpublish courses node
 
