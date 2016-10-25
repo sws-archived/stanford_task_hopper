@@ -400,3 +400,36 @@ function stanford_task_hopper_jse_dept_unmods(&$args = array()) {
     drush_log('Error when uninstalling modules: ' . implode(', ', $modules), 'notice');
   }
 }
+
+/**
+ * Callback for the jse-uninstall-courses command
+ * @param array $args
+ *
+ * This installs the courses modules for JSE.
+ */
+function stanford_task_hopper_jse_uninstall_courses(&$args = array()) {
+  $modules = array('stanford_courses', 'stanford_courses_views', 'stanford_courses_administration' );
+  if (drupal_uninstall_modules($modules)) {
+    drush_log('Disabled and uninstalled modules: ' . implode(', ', $modules), 'ok');
+  } else
+  {
+    drush_log('Error when uninstalling modules: ' . implode(', ', $modules), 'notice');
+  }
+}
+
+/**
+ * Callback for the jse-install-courses command
+ * @param array $args
+ *
+ * This installs the courses modules for JSE.
+ */
+function stanford_task_hopper_jse_install_courses(&$args = array()) {
+  $modules = array('stanford_courses', 'stanford_courses_views', 'stanford_courses_administration' );
+  if (module_enable($modules)) {
+    drush_log('Enabled modules: ' . implode(', ', $modules), 'ok');
+  } else
+  {
+    drush_log('Error when enabling modules: ' . implode(', ', $modules), 'notice');
+  }
+}
+
