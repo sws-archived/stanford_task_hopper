@@ -476,8 +476,8 @@ function stanford_task_hopper_jse_install_courses(&$args = array()) {
  */
 function stanford_task_hopper_jse_uninstall_courses(&$args = array()) {
   module_load_include('module', 'redirect', 'redirect.module');
-  $modules = array('stanford_courses', 'stanford_course_views',
-    'stanford_courses_administration', 'stanford_feeds_helper' );
+  $modules = array( 'stanford_course_views', 'stanford_courses_administration',
+    'stanford_courses', 'stanford_feeds_helper');
   if (drupal_uninstall_modules($modules, FALSE)) {
     drush_log('Disabled and uninstalled modules: ' . implode(', ', $modules), 'ok');
   } else
