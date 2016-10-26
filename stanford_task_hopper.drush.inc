@@ -80,6 +80,7 @@ function stanford_task_hopper_drush_command() {
     'callback' => 'stanford_task_hopper_jse_uninstall_courses',
     'drupal dependencies' => array('stanford_task_hopper'),
     'aliases' => array('sth-jse-uninstall-courses'),
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
   );
   $items['jse-install-capx'] = array(
     'description' => 'Install capx for jse.',
@@ -125,6 +126,7 @@ function stanford_task_hopper_drush_command() {
     'callback' => 'stanford_task_hopper_jse_dept_unmods',
     'drupal dependencies' => array('stanford_task_hopper'),
     'aliases' => array('sth-jse-dept-unmods'),
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
   );
   return $items;
 }
@@ -478,6 +480,8 @@ function stanford_task_hopper_jse_uninstall_courses(&$args = array()) {
   module_load_include('module', 'redirect', 'redirect.module');
   $modules = array( 'stanford_course_views', 'stanford_courses_administration',
     'stanford_courses', 'stanford_feeds_helper');
+  module_disable($modules);
+
   if (drupal_uninstall_modules($modules, FALSE)) {
     drush_log('Disabled and uninstalled modules: ' . implode(', ', $modules), 'ok');
   } else
