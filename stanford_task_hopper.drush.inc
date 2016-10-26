@@ -1,4 +1,10 @@
 <?php
+/**
+ * @file
+ * Stanford Task Hopper Drush Commands
+ *
+ * If your module will not enable, check to see if it has any dependencies.
+ */
 
 define('STH_INSTALL_PROFILE', variable_get('install_profile'));
 
@@ -23,16 +29,15 @@ switch (STH_INSTALL_PROFILE) {
     define('STH_TASKS_DIR_JSE_INSTALL_BLOCK', STANFORD_TASKS_PATH .'/Stanford/JumpstartEngineering/Install/Block');
     define('STH_TASKS_DIR_JSE_INSTALL_CAPX', STANFORD_TASKS_PATH  . '/Stanford/JumpstartEngineering/Install/CAPx');
     define('STH_TASKS_DIR_JSE_INSTALL_CONTENT', STANFORD_TASKS_PATH  . '/Stanford/JumpstartEngineering/Install/Content');
+    define('STH_TASKS_DIR_JSE_INSTALL_COURSES', STANFORD_TASKS_PATH  . '/Stanford/JumpstartEngineering/Install/Courses');
     define('STH_TASKS_DIR_JSE_INSTALL_LAYOUTS', STANFORD_TASKS_PATH  . '/Stanford/JumpstartEngineering/Install/Layouts');
     define('STH_TASKS_DIR_JSE_INSTALL_MENU', STANFORD_TASKS_PATH . '/Stanford/JumpstartEngineering/Install/Menu');
     define('STH_TASKS_DIR_JSE_INSTALL_USERS', STANFORD_TASKS_PATH  . '/Stanford/JumpstartEngineering/Install/Users');
-    require_once STANFORD_TASKS_PATH . '/Core/InstallTaskInterface.php';
-    require_once STANFORD_TASKS_PATH . '/Core/AbstractTask.php';
-    require_once STANFORD_TASKS_PATH . '/Core/AbstractInstallTask.php';
     break;
 }
 
 require_once DRUPAL_ROOT . '/includes/password.inc';
+require_once DRUPAL_ROOT . '/includes/install.inc';
 require_once STANFORD_SITES_CONTENT_IMPORTER . '/SitesContentImporter.php';
 require_once STANFORD_SITES_CONTENT_IMPORTER . '/SitesContentImporterViews.php';
 require_once STANFORD_SITES_CONTENT_IMPORTER . '/ImporterFieldProcessor.php';
@@ -41,6 +46,7 @@ require_once STANFORD_TASKS_PATH . '/autoloader.php';
 use Stanford\JumpstartEngineering\Install\Block;
 use Stanford\JumpstartEngineering\Install\CAPx;
 use Stanford\JumpstartEngineering\Install\Content;
+use Stanford\JumpstartEngineering\Install\Courses;
 use Stanford\JumpstartEngineering\Install\Layouts;
 use Stanford\JumpstartEngineering\Install\Menu;
 use Stanford\JumpstartEngineering\Install\Users;
