@@ -33,9 +33,6 @@ switch (STH_INSTALL_PROFILE) {
     define('STH_TASKS_DIR_JSE_INSTALL_LAYOUTS', STANFORD_TASKS_PATH  . '/Stanford/JumpstartEngineering/Install/Layouts');
     define('STH_TASKS_DIR_JSE_INSTALL_MENU', STANFORD_TASKS_PATH . '/Stanford/JumpstartEngineering/Install/Menu');
     define('STH_TASKS_DIR_JSE_INSTALL_USERS', STANFORD_TASKS_PATH  . '/Stanford/JumpstartEngineering/Install/Users');
-    require_once STANFORD_TASKS_PATH . '/Core/InstallTaskInterface.php';
-    require_once STANFORD_TASKS_PATH . '/Core/AbstractTask.php';
-    require_once STANFORD_TASKS_PATH . '/Core/AbstractInstallTask.php';
     break;
 }
 
@@ -440,10 +437,6 @@ function stanford_task_hopper_jse_install_courses(&$args = array()) {
 
   // Install the css block classes for the courses pages.
   $task = new Courses\CoursesBlockClasses();
-  $task->execute();
-
-  // Install the menu position rule for courses
-  $task = new Courses\CoursesMenuPositionRules();
   $task->execute();
 
   // Unpublish courses node
