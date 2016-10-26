@@ -73,6 +73,7 @@ function stanford_task_hopper_drush_command() {
     'callback' => 'stanford_task_hopper_jse_install_courses',
     'drupal dependencies' => array('stanford_task_hopper'),
     'aliases' => array('sth-jse-install-courses'),
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
   );
   $items['jse-uninstall-courses'] = array(
     'description' => 'Uninstall courses for JSE.',
