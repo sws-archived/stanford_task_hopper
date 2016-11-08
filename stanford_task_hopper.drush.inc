@@ -387,7 +387,8 @@ function stanford_task_hopper_jse_dept_mods(&$args = array()) {
 
   $modules = array('stanford_jumpstart_home_dept', 'stanford_jse_dept',
     'stanford_related_content', 'stanford_related_news', 'stanford_related_person',
-    'stanford_related_events', 'stanford_jse_related_content');
+    'stanford_related_events');
+  // todo: 'stanford_jse_related_content'
   if (module_enable($modules)) {
     drush_log('Enabled modules: ' . implode(', ', $modules), 'ok');
   } else
