@@ -385,6 +385,18 @@ function stanford_task_hopper_jse_dept_mods(&$args = array()) {
   $task->execute();
   drush_log('jse contextual block classes imported', 'ok');
 
+  // Disable the stanford_news_views so we can enable stanford_news_extras_views
+  $modules = array('stanford_news_views',);
+  module_disable($modules);
+
+  if (drupal_uninstall_modules($modules)) {
+    drush_log('Disabled and uninstalled modules: ' . implode(', ', $modules), 'ok');
+  } else
+  {
+    drush_log('Error when uninstalling modules: ' . implode(', ', $modules), 'notice');
+  }
+
+  // Enable all the department modules
   $modules = array('stanford_jumpstart_home_dept',
     'stanford_jse_dept',
     'stanford_jse_related_content');
@@ -410,7 +422,7 @@ function stanford_task_hopper_jse_dept_unmods(&$args = array()) {
   $modules = array('stanford_jumpstart_home_dept',
     'stanford_jse_dept',
     'stanford_jse_related_content');
-  
+
   module_disable($modules);
 
   if (drupal_uninstall_modules($modules)) {
@@ -418,6 +430,15 @@ function stanford_task_hopper_jse_dept_unmods(&$args = array()) {
   } else
   {
     drush_log('Error when uninstalling modules: ' . implode(', ', $modules), 'notice');
+  }
+
+  // Enable the stanford_news_views
+  $modules = array('stanford_news_views',);
+  if (module_enable($modules)) {
+    drush_log('Enabled modules: ' . implode(', ', $modules), 'ok');
+  } else
+  {
+    drush_log('Error when enabling modules: ' . implode(', ', $modules), 'notice');
   }
   stanford_task_hopper_jse_uninstall_courses($args);
 }
