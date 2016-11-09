@@ -410,6 +410,7 @@ function stanford_task_hopper_jse_dept_unmods(&$args = array()) {
   $modules = array('stanford_jumpstart_home_dept',
     'stanford_jse_dept',
     'stanford_jse_related_content');
+  
   module_disable($modules);
 
   if (drupal_uninstall_modules($modules)) {
@@ -434,8 +435,10 @@ function stanford_task_hopper_jse_install_courses(&$args = array()) {
     'stanford_course_views', 'stanford_courses_administration');
 
   if (module_enable($modules, TRUE)) {
-    drush_log('Enabled modules: ' . implode(', ', $modules), 'ok');
     // Todo: revert stanford_course_views
+    //features_revert(array('stanford_course_views' => array('views_view')));
+    //features_revert_module('stanford_course_views');
+    drush_log('Enabled modules: ' . implode(', ', $modules), 'ok');
   } else
   {
     drush_log('Error when enabling modules: ' . implode(', ', $modules), 'notice');
@@ -506,12 +509,14 @@ function stanford_task_hopper_jse_uninstall_courses(&$args = array()) {
     path_node_delete($node);
     $node->status = 1;
     $node->title = 'Courses';
-    $node->path['alias'] = 'about/courses';
+    $node->path['alias'] = 'courses';
     $node->menu = array(
       'enabled' => 1,
     );
     node_save($node);
     redirect_delete_by_path('courses-deprecated');
+    $alias = array('source' => 'node/' . $node->nid, 'alias' => 'about/courses',);
+    path_save($alias);
     drush_log('Published node: ' . $node->title . ' ' . $node->nid, 'ok');
   }
 }
