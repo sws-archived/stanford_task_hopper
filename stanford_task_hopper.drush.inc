@@ -385,7 +385,9 @@ function stanford_task_hopper_jse_dept_mods(&$args = array()) {
   $task->execute();
   drush_log('jse contextual block classes imported', 'ok');
 
-  $modules = array('stanford_jumpstart_home_dept', 'stanford_jse_dept');
+  $modules = array('stanford_jumpstart_home_dept',
+    'stanford_jse_dept',
+    'stanford_jse_related_content');
   if (module_enable($modules)) {
     drush_log('Enabled modules: ' . implode(', ', $modules), 'ok');
   } else
@@ -405,7 +407,9 @@ function stanford_task_hopper_jse_dept_mods(&$args = array()) {
  */
 function stanford_task_hopper_jse_dept_unmods(&$args = array()) {
 
-  $modules = array('stanford_jumpstart_home_dept', 'stanford_jse_dept',);
+  $modules = array('stanford_jumpstart_home_dept',
+    'stanford_jse_dept',
+    'stanford_jse_related_content');
   module_disable($modules);
 
   if (drupal_uninstall_modules($modules)) {
