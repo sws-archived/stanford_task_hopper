@@ -132,14 +132,14 @@ function stanford_task_hopper_drush_command() {
 }
 
 /**
- * Callback for the get-tasks command
+ * Callback for the get-tasks command.
  */
 function stanford_task_hopper_jse_get_tasks() {
   drush_log('performed get tasks', 'ok');
 }
 
 /**
- * Callback for the install-content command
+ * Callback for the install-content command.
  */
 function stanford_task_hopper_jse_install_block() {
   $install_profile = STH_INSTALL_PROFILE;
@@ -168,7 +168,7 @@ function stanford_task_hopper_jse_install_block() {
 }
 
 /**
- * Callback for the install-capx command
+ * Callback for the install-capx command.
  */
 function stanford_task_hopper_jse_install_capx() {
   $install_profile = STH_INSTALL_PROFILE;
@@ -207,7 +207,7 @@ function stanford_task_hopper_jse_install_capx() {
 }
 
 /**
- * Callback for the install-content command
+ * Callback for the install-content command.
  */
 function stanford_task_hopper_jse_install_content() {
   $install_profile = STH_INSTALL_PROFILE;
@@ -241,7 +241,7 @@ function stanford_task_hopper_jse_install_content() {
 }
 
 /**
- * Callback for the jse-install-layouts command
+ * Callback for the jse-install-layouts command.
  */
 function stanford_task_hopper_jse_install_layouts() {
   module_load_include('inc', 'stanford_jumpstart_home', 'stanford_jumpstart_home.context.inc');
@@ -277,7 +277,7 @@ function stanford_task_hopper_jse_install_layouts() {
 }
 
 /**
- * Callback for the jse-install-menu command
+ * Callback for the jse-install-menu command.
  */
 function stanford_task_hopper_jse_install_menu() {
   $install_profile = STH_INSTALL_PROFILE;
@@ -321,7 +321,7 @@ function stanford_task_hopper_jse_install_menu() {
 }
 
 /**
- * Callback for the jse-install-users command
+ * Callback for the jse-install-users command.
  */
 function stanford_task_hopper_jse_install_users() {
   $install_profile = STH_INSTALL_PROFILE;
@@ -362,11 +362,11 @@ function stanford_task_hopper_jse_install_users() {
 }
 
 /**
- * Callback for the jse-dept-mods command
+ * Callback for the jse-dept-mods command.
  * @param array $args
  *
  * This imports content and enables modules for department sites
- * on a JSE (PICAL) site
+ * on a JSE (PICAL) site.
  */
 function stanford_task_hopper_jse_dept_mods(&$args = array()) {
 
@@ -385,7 +385,21 @@ function stanford_task_hopper_jse_dept_mods(&$args = array()) {
   $task->execute();
   drush_log('jse contextual block classes imported', 'ok');
 
-  $modules = array('stanford_jumpstart_home_dept', 'stanford_jse_dept');
+  // Disable the stanford_news_views so we can enable stanford_news_extras_views
+  $modules = array('stanford_news_views',);
+  module_disable($modules);
+
+  if (drupal_uninstall_modules($modules)) {
+    drush_log('Disabled and uninstalled modules: ' . implode(', ', $modules), 'ok');
+  } else
+  {
+    drush_log('Error when uninstalling modules: ' . implode(', ', $modules), 'notice');
+  }
+
+  // Enable all the department modules
+  $modules = array('stanford_jumpstart_home_dept',
+    'stanford_jse_dept',
+    'stanford_jse_related_content');
   if (module_enable($modules)) {
     drush_log('Enabled modules: ' . implode(', ', $modules), 'ok');
   } else
@@ -396,16 +410,19 @@ function stanford_task_hopper_jse_dept_mods(&$args = array()) {
 }
 
 /**
- * Callback for the jse-dept-unmods command
+ * Callback for the jse-dept-unmods command.
  * @param array $args
  *
  * This reverts the jse_dept_mods command. Well, as much as possible.
  * It disables modules for department sites
- * on a JSE (PICAL) site
+ * on a JSE (PICAL) site.
  */
 function stanford_task_hopper_jse_dept_unmods(&$args = array()) {
 
-  $modules = array('stanford_jumpstart_home_dept', 'stanford_jse_dept',);
+  $modules = array('stanford_jumpstart_home_dept',
+    'stanford_jse_dept',
+    'stanford_jse_related_content');
+
   module_disable($modules);
 
   if (drupal_uninstall_modules($modules)) {
@@ -413,6 +430,15 @@ function stanford_task_hopper_jse_dept_unmods(&$args = array()) {
   } else
   {
     drush_log('Error when uninstalling modules: ' . implode(', ', $modules), 'notice');
+  }
+
+  // Enable the stanford_news_views
+  $modules = array('stanford_news_views',);
+  if (module_enable($modules)) {
+    drush_log('Enabled modules: ' . implode(', ', $modules), 'ok');
+  } else
+  {
+    drush_log('Error when enabling modules: ' . implode(', ', $modules), 'notice');
   }
   stanford_task_hopper_jse_uninstall_courses($args);
 }
@@ -430,8 +456,10 @@ function stanford_task_hopper_jse_install_courses(&$args = array()) {
     'stanford_course_views', 'stanford_courses_administration');
 
   if (module_enable($modules, TRUE)) {
-    drush_log('Enabled modules: ' . implode(', ', $modules), 'ok');
     // Todo: revert stanford_course_views
+    //features_revert(array('stanford_course_views' => array('views_view')));
+    //features_revert_module('stanford_course_views');
+    drush_log('Enabled modules: ' . implode(', ', $modules), 'ok');
   } else
   {
     drush_log('Error when enabling modules: ' . implode(', ', $modules), 'notice');
@@ -471,7 +499,7 @@ function stanford_task_hopper_jse_install_courses(&$args = array()) {
 }
 
 /**
- * Callback for the jse-uninstall-courses command
+ * Callback for the jse-uninstall-courses command.
  * @param array $args
  *
  * This uninstalls the courses modules for JSE.
@@ -502,12 +530,14 @@ function stanford_task_hopper_jse_uninstall_courses(&$args = array()) {
     path_node_delete($node);
     $node->status = 1;
     $node->title = 'Courses';
-    $node->path['alias'] = 'about/courses';
+    $node->path['alias'] = 'courses';
     $node->menu = array(
       'enabled' => 1,
     );
     node_save($node);
     redirect_delete_by_path('courses-deprecated');
+    $alias = array('source' => 'node/' . $node->nid, 'alias' => 'about/courses',);
+    path_save($alias);
     drush_log('Published node: ' . $node->title . ' ' . $node->nid, 'ok');
   }
 }
