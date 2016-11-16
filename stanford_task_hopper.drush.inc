@@ -377,19 +377,6 @@ function stanford_task_hopper_jse_dept_mods(&$args = array()) {
   $install_profile = STH_INSTALL_PROFILE;
   if ($install_profile == 'stanford_sites_jumpstart_engineering') {
 
-    // Install the custom beans and css classes for the homepage layout.
-    $task = new Content\ImportJSECustomBeans();
-    $task->execute();
-    drush_log('Custom beans imported', 'ok');
-
-    $task = new Block\JSEBlockClasses();
-    $task->execute();
-    drush_log('jse block classes imported', 'ok');
-
-    $task = new Block\JSEContextualBlockClasses();
-    $task->execute();
-    drush_log('jse contextual block classes imported', 'ok');
-
     // Disable the stanford_news_views so we can enable stanford_news_extras_views
     $modules = array('stanford_news_views',);
     module_disable($modules);
@@ -413,8 +400,24 @@ function stanford_task_hopper_jse_dept_mods(&$args = array()) {
     else {
       drush_log('Error when enabling modules: ' . implode(', ', $modules), 'notice');
     }
+
+    // Install courses
     stanford_task_hopper_jse_install_courses($args);
-  }
+
+    // Install the custom beans and css classes for the homepage layout.
+    $task = new Content\ImportJSECustomBeans();
+    $task->execute();
+    drush_log('Custom beans imported', 'ok');
+
+    $task = new Block\JSEBlockClasses();
+    $task->execute();
+    drush_log('jse block classes imported', 'ok');
+
+    $task = new Block\JSEContextualBlockClasses();
+    $task->execute();
+    drush_log('jse contextual block classes imported', 'ok');
+
+ }
   else {
     drush_log('The drush command sth-jse-users is only for use with Jumpstart Engineering', 'ok');
   }
