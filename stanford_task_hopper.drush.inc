@@ -419,7 +419,6 @@ function stanford_task_hopper_jse_dept_mods(&$args = array()) {
     drush_log('The drush command sth-jse-users is only for use with Jumpstart Engineering', 'ok');
   }
 }
-}
 
 /**
  * Callback for the jse-dept-unmods command.
