@@ -8,6 +8,7 @@
 
 define('STH_INSTALL_PROFILE', variable_get('install_profile'));
 
+// Find where the tasks are installed
 $tasks_path = DRUPAL_ROOT . '/sites/default/libraries/tasks';
 
 if (is_dir($tasks_path)) {
@@ -16,6 +17,7 @@ if (is_dir($tasks_path)) {
   define('STANFORD_TASKS_PATH', DRUPAL_ROOT . '/sites/all/libraries/tasks');
 }
 
+// Find where the content importer is defined
 $importer_path = DRUPAL_ROOT . '/sites/default/libraries/stanford_sites_content_importer';
 
 if (is_dir($importer_path)) {
@@ -120,6 +122,7 @@ function stanford_task_hopper_drush_command() {
     'callback' => 'stanford_task_hopper_jse_dept_mods',
     'drupal dependencies' => array('stanford_task_hopper'),
     'aliases' => array('sth-jse-dept-mods'),
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
   );
   $items['jse-dept-unmods'] = array(
     'description' => 'This reverts the actions jse_dept_mods command.',
@@ -516,8 +519,8 @@ function stanford_task_hopper_jse_uninstall_courses(&$args = array()) {
   {
     drush_log('Error when uninstalling modules: ' . implode(', ', $modules), 'notice');
   }
-  // Publish courses node
 
+  // Publish courses node
   $query = new EntityFieldQuery();
 
   $entities = $query->entityCondition('entity_type', 'node')
