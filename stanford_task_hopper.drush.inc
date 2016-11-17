@@ -377,7 +377,7 @@ function stanford_task_hopper_jse_dept_mods(&$args = array()) {
   $install_profile = STH_INSTALL_PROFILE;
   if ($install_profile == 'stanford_sites_jumpstart_engineering') {
 
-    // Disable the stanford_news_views so we can enable stanford_news_extras_views
+    // Disable the stanford_news_views so we can enable stanford_news_extras_views.
     $modules = array('stanford_news_views',);
     module_disable($modules);
 
@@ -388,11 +388,10 @@ function stanford_task_hopper_jse_dept_mods(&$args = array()) {
       drush_log('Error when uninstalling modules: ' . implode(', ', $modules), 'notice');
     }
 
-    // Enable all the department modules
+    // Enable all the department modules.
     $modules = array(
       'stanford_jumpstart_home_dept',
       'stanford_jse_dept',
-      'stanford_jse_related_content'
     );
     if (module_enable($modules)) {
       drush_log('Enabled modules: ' . implode(', ', $modules), 'ok');
@@ -456,7 +455,7 @@ function stanford_task_hopper_jse_dept_unmods(&$args = array()) {
       drush_log('Error when uninstalling modules: ' . implode(', ', $modules), 'notice');
     }
 
-    // Enable the stanford_news_views
+    // Enable the stanford_news_views.
     $modules = array('stanford_news_views',);
     if (module_enable($modules)) {
       drush_log('Enabled modules: ' . implode(', ', $modules), 'ok');
