@@ -401,8 +401,14 @@ function stanford_task_hopper_jse_dept_mods(&$args = array()) {
       drush_log('Error when enabling modules: ' . implode(', ', $modules), 'notice');
     }
 
-    // Install courses
-    stanford_task_hopper_jse_install_courses($args);
+    // Enable courses
+    $task = new Courses\EnableCourses();
+    $task->execute();
+    drush_log('Courses enabled', 'ok');
+
+    // Install the css block classes for the courses pages.
+    $task = new Courses\CoursesBlockClasses();
+    $task->execute();
 
     // Install the custom beans and css classes for the homepage layout.
     $task = new Content\ImportJSECustomBeans();
@@ -458,7 +464,10 @@ function stanford_task_hopper_jse_dept_unmods(&$args = array()) {
     else {
       drush_log('Error when enabling modules: ' . implode(', ', $modules), 'notice');
     }
-    stanford_task_hopper_jse_uninstall_courses($args);
+    // Disable courses
+    $task = new Courses\DisableCourses();
+    $task->execute();
+    drush_log('Courses Module disabled', 'ok');
   }
   else {
     drush_log('The drush command sth-jse-users is only for use with Jumpstart Engineering', 'ok');
@@ -472,52 +481,16 @@ function stanford_task_hopper_jse_dept_unmods(&$args = array()) {
  * This installs the courses modules for JSE.
  */
 function stanford_task_hopper_jse_install_courses(&$args = array()) {
-  module_load_include('module', 'redirect', 'redirect.module');
-  module_load_include('module', 'features', 'features.module');
-  $modules = array('stanford_feeds_helper', 'stanford_courses',
-    'stanford_course_views', 'stanford_courses_administration');
 
-  if (module_enable($modules, TRUE)) {
-    // Todo: revert stanford_course_views
-    //features_revert(array('stanford_course_views' => array('views_view')));
-    //features_revert_module('stanford_course_views');
-    drush_log('Enabled modules: ' . implode(', ', $modules), 'ok');
-  } else
-  {
-    drush_log('Error when enabling modules: ' . implode(', ', $modules), 'notice');
-    exit();
-  }
+  // Enable courses
+  $task = new Courses\EnableCourses();
+  $task->execute();
+  drush_log('Courses module enabled', 'ok');
 
   // Install the css block classes for the courses pages.
   $task = new Courses\CoursesBlockClasses();
   $task->execute();
 
-  // Unpublish courses node
-
-  $query = new EntityFieldQuery();
-
-  $entities = $query->entityCondition('entity_type', 'node')
-                    ->propertyCondition('type', 'stanford_page')
-                    ->propertyCondition('title', 'Courses')
-                    ->execute();
-
-  if (!empty($entities['node'])) {
-    $node = node_load(array_shift(array_keys($entities['node'])));
-    path_node_delete($node);
-    $node->status = 0;
-    $node->title = 'Courses Deprecated';
-    $node->path['alias'] = 'courses-deprecated';
-    $node->path['pathauto'] = 0;
-    $node->menu = array(
-      'enabled' => 0,
-    );
-    node_save($node);
-    redirect_delete_by_path('courses');
-    redirect_delete_by_path('about/courses');
-    path_delete(array('source'=>'courses'));
-    path_delete(array('source'=>'about/courses'));
-    drush_log('Unpublished node: ' . $node->title . ' ' . $node->nid, 'ok');
-  }
 }
 
 /**
@@ -527,40 +500,10 @@ function stanford_task_hopper_jse_install_courses(&$args = array()) {
  * This uninstalls the courses modules for JSE.
  */
 function stanford_task_hopper_jse_uninstall_courses(&$args = array()) {
-  module_load_include('module', 'redirect', 'redirect.module');
-  $modules = array( 'stanford_course_views', 'stanford_courses_administration',
-    'stanford_courses', 'stanford_feeds_helper');
-  module_disable($modules);
 
-  if (drupal_uninstall_modules($modules, FALSE)) {
-    drush_log('Disabled and uninstalled modules: ' . implode(', ', $modules), 'ok');
-  } else
-  {
-    drush_log('Error when uninstalling modules: ' . implode(', ', $modules), 'notice');
-  }
-
-  // Publish courses node
-  $query = new EntityFieldQuery();
-
-  $entities = $query->entityCondition('entity_type', 'node')
-                    ->propertyCondition('type', 'stanford_page')
-                    ->propertyCondition('title', 'Courses Deprecated')
-                    ->execute();
-
-  if (!empty($entities['node'])) {
-    $node = node_load(array_shift(array_keys($entities['node'])));
-    path_node_delete($node);
-    $node->status = 1;
-    $node->title = 'Courses';
-    $node->path['alias'] = 'courses';
-    $node->menu = array(
-      'enabled' => 1,
-    );
-    node_save($node);
-    redirect_delete_by_path('courses-deprecated');
-    $alias = array('source' => 'node/' . $node->nid, 'alias' => 'about/courses',);
-    path_save($alias);
-    drush_log('Published node: ' . $node->title . ' ' . $node->nid, 'ok');
-  }
+  // Disable courses
+  $task = new Courses\DisableCourses();
+  $task->execute();
+  drush_log('Courses Module disabled', 'ok');
 }
 
