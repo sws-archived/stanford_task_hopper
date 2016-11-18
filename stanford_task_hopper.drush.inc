@@ -392,7 +392,6 @@ function stanford_task_hopper_jse_dept_mods(&$args = array()) {
     $modules = array(
       'stanford_jumpstart_home_dept',
       'stanford_jse_dept',
-      'stanford_jse_related_content',
     );
     if (module_enable($modules)) {
       drush_log('Enabled modules: ' . implode(', ', $modules), 'ok');
@@ -444,7 +443,6 @@ function stanford_task_hopper_jse_dept_unmods(&$args = array()) {
     $modules = array(
       'stanford_jumpstart_home_dept',
       'stanford_jse_dept',
-      'stanford_jse_related_content'
     );
 
     module_disable($modules);
