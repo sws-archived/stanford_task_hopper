@@ -3,3 +3,13 @@
  * @file
  * Code for the Stanford Task Hopper module.
  */
+
+ /**
+  * Implements hook_help().
+  */
+function stanford_task_hopper_help($path, $arg) {
+  switch ($path) {
+    case 'stanford_task_hopper':
+      return '<p>' . t('Help Text Goes Here.') . '</p>';
+  }
+}
