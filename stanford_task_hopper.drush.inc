@@ -87,14 +87,15 @@ function stanford_task_hopper_get_tasks() {
  */
 function stanford_task_hopper_execute_task($class) {
 
-  $task = new $class();
+  // Give the task a go.
   try {
+    $task = new $class();
     $task->execute();
   }
   // If the task failed to execute then record that and exit out.
   catch (Exception $e) {
     stanford_task_hopper_record_task($class, 'fail');
-    drush_set_error("Task could not execute: ", $e->message(), "error");
+    drush_set_error("error", $e->getMessage(), "Task could not execute. The error that was given:\n\n");
     return;
   }
 
@@ -114,13 +115,6 @@ function stanford_task_hopper_execute_task($class) {
 function stanford_task_hopper_record_task($class, $status) {
   // TODO write to db.
 }
-
-
-
-
-
-
-
 
 /**
  * A**********************************************.
