@@ -16,7 +16,29 @@ function stanford_task_hopper_drush_command() {
     'description' => 'Get listings of executable tasks.',
     'callback' => 'stanford_task_hopper_get_tasks',
     'aliases' => array('sth'),
-    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_SITE,
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
+    'category' => 'Task Hopper',
+  );
+
+  $items['hopper-task-execute'] = array(
+    'description' => 'Execute a specific task.',
+    'callback' => 'stanford_task_hopper_execute_task',
+    'arguments' => array(
+      'class' => 'The namespaced class name.',
+    ),
+    'aliases' => array('sth-ex'),
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
+    'category' => 'Task Hopper',
+  );
+
+  $items['hopper-task-describe'] = array(
+    'description' => 'Describe a specific task.',
+    'callback' => 'stanford_task_hopper_describe_task',
+    'arguments' => array(
+      'class' => 'The namespaced class name.',
+    ),
+    'aliases' => array('sth-desc'),
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
     'category' => 'Task Hopper',
   );
 
@@ -28,16 +50,11 @@ function stanford_task_hopper_drush_command() {
  */
 function stanford_task_hopper_get_tasks() {
 
-  // Check to see if the user has the required version first.
-  stanford_task_hopper_check_drush_version();
-
-  // Load the autoloader.
-  stanford_task_hopper_load_task_autoloader();
-
   // Get the tasks.
   $tasks_path = stanford_task_hopper_get_tasks_path();
   $mask = array(".", "..", "ITasks", "autoloader.php", "README.md", "img");
   $opt = NULL;
+  $choices = NULL;
 
   // While the selection is not a task keep looping deeper in to the options.
   while (!stanford_task_hopper_path_is_task($opt) && $opt !== FALSE) {
@@ -83,7 +100,7 @@ function stanford_task_hopper_get_tasks() {
  * been run on a particular site.
  *
  * @param string $class
- *   A globally namespaced class name. eg: \Drupal\Standard\Install\TaskName
+ *   A globally namespaced class name. eg: \Drupal\Standard\Install\TaskName.
  */
 function stanford_task_hopper_execute_task($class) {
 
@@ -105,6 +122,34 @@ function stanford_task_hopper_execute_task($class) {
 }
 
 /**
+ * Attempts to instantiate and describe a task.
+ *
+ * @param string $class
+ *   A globally namespaced class name. eg: \Drupal\Standard\Install\TaskName.
+ */
+function stanford_task_hopper_describe_task($class) {
+
+  // Load the dependencies.
+  stanford_task_hopper_load_dependencies();
+
+  $desc = NULL;
+
+  // Give the task a go.
+  try {
+    $task = new $class();
+    $desc = $task->getDescription();
+  }
+  // If the task failed to execute then record that and exit out.
+  catch (Exception $e) {
+    drush_set_error("error", $e->getMessage(), "Task could not execute. The error that was given:\n\n");
+    return;
+  }
+
+  drush_log($desc, "status");
+
+}
+
+/**
  * Records history to the database.
  *
  * @param string $class
@@ -113,8 +158,62 @@ function stanford_task_hopper_execute_task($class) {
  *   A status type. Currently supports "fail", "success".
  */
 function stanford_task_hopper_record_task($class, $status) {
-  // TODO write to db.
+  $record = array(
+    'task' => $class,
+    'status' => $status,
+    'time' => time(),
+  );
+  drupal_write_record('stanford_task_hopper', $record);
 }
+
+/**
+ * A***********************************************.
+ *
+ * Drush hooks.
+ *
+ * A***********************************************.
+ */
+
+/**
+ * Validation hook for executing a task.
+ *
+ * @param string $class
+ *   The class name that is going to be called.
+ */
+function drush_stanford_task_hopper_hopper_task_execute_pre_validate($class) {
+  // Load the dependencies.
+  stanford_task_hopper_load_dependencies();
+
+  // Validate that the task has it's dependencies.
+  try {
+    $task = new $class();
+  }
+  // If the task failed to execute then record that and exit out.
+  catch (Exception $e) {
+    drush_set_error("error", $e->getMessage());
+    drush_user_abort();
+  }
+
+  // Fetch and check that each of the dependencies are available.
+  $req = $task->requirements();
+  foreach ($req as $module) {
+    if (!module_exists($module)) {
+      drush_set_error("error", "Missing dependency: " . $module);
+      drush_user_abort();
+    }
+  }
+}
+
+/**
+ * Before task execution hook.
+ *
+ * Adds checks for versions, autoloading, and dependencies here.
+ */
+function drush_stanford_task_hopper_pre_hopper_task_execute($class) {
+  // Load the dependencies so tasks can run.
+  stanford_task_hopper_load_dependencies();
+}
+
 
 /**
  * A**********************************************.
@@ -133,6 +232,18 @@ function stanford_task_hopper_check_drush_version() {
     drush_log("Your drush version is too old. Please update to version 7.", "error");
     drush_user_abort();
   }
+}
+
+/**
+ * Load up any dependencies that are needed for this thing to run.
+ */
+function stanford_task_hopper_load_dependencies() {
+  // Load the autoloader.
+  stanford_task_hopper_load_task_autoloader();
+
+  // Add a couple of Drupal root items.
+  require_once DRUPAL_ROOT . '/includes/password.inc';
+  require_once DRUPAL_ROOT . '/includes/install.inc';
 }
 
 /**
