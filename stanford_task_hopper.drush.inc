@@ -6,8 +6,10 @@
  * If your module will not enable, check to see if it has any dependencies.
  */
 
-define('STH_INSTALL_PROFILE', variable_get('install_profile'));
+// Todo: define('STH_INSTALL_PROFILE', variable_get('install_profile'));
+define('STH_INSTALL_PROFILE', 'stanford_sites_jumpstart_engineering');
 
+// Find where the tasks are installed
 $tasks_path = DRUPAL_ROOT . '/sites/default/libraries/tasks';
 
 if (is_dir($tasks_path)) {
@@ -16,6 +18,7 @@ if (is_dir($tasks_path)) {
   define('STANFORD_TASKS_PATH', DRUPAL_ROOT . '/sites/all/libraries/tasks');
 }
 
+// Find where the content importer is defined
 $importer_path = DRUPAL_ROOT . '/sites/default/libraries/stanford_sites_content_importer';
 
 if (is_dir($importer_path)) {
@@ -120,6 +123,7 @@ function stanford_task_hopper_drush_command() {
     'callback' => 'stanford_task_hopper_jse_dept_mods',
     'drupal dependencies' => array('stanford_task_hopper'),
     'aliases' => array('sth-jse-dept-mods'),
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
   );
   $items['jse-dept-unmods'] = array(
     'description' => 'This reverts the actions jse_dept_mods command.',
@@ -370,43 +374,58 @@ function stanford_task_hopper_jse_install_users() {
  */
 function stanford_task_hopper_jse_dept_mods(&$args = array()) {
 
-  // Todo: verify this is a JSE site.
+  $install_profile = STH_INSTALL_PROFILE;
+  if ($install_profile == 'stanford_sites_jumpstart_engineering') {
 
-  // Install the custom beans and css classes for the homepage layout.
-  $task = new Content\ImportJSECustomBeans();
-  $task->execute();
-  drush_log('Custom beans imported', 'ok');
+    // Disable the stanford_news_views so we can enable stanford_news_extras_views.
+    $modules = array('stanford_news_views',);
+    module_disable($modules);
 
-  $task = new Block\JSEBlockClasses();
-  $task->execute();
-  drush_log('jse block classes imported', 'ok');
+    if (drupal_uninstall_modules($modules)) {
+      drush_log('Disabled and uninstalled modules: ' . implode(', ', $modules), 'ok');
+    }
+    else {
+      drush_log('Error when uninstalling modules: ' . implode(', ', $modules), 'notice');
+    }
 
-  $task = new Block\JSEContextualBlockClasses();
-  $task->execute();
-  drush_log('jse contextual block classes imported', 'ok');
+    // Enable all the department modules.
+    $modules = array(
+      'stanford_jumpstart_home_dept',
+      'stanford_jse_dept',
+    );
+    if (module_enable($modules)) {
+      drush_log('Enabled modules: ' . implode(', ', $modules), 'ok');
+    }
+    else {
+      drush_log('Error when enabling modules: ' . implode(', ', $modules), 'notice');
+    }
 
-  // Disable the stanford_news_views so we can enable stanford_news_extras_views
-  $modules = array('stanford_news_views',);
-  module_disable($modules);
+    // Enable courses
+    $task = new Courses\EnableCourses();
+    $task->execute();
+    drush_log('Courses enabled', 'ok');
 
-  if (drupal_uninstall_modules($modules)) {
-    drush_log('Disabled and uninstalled modules: ' . implode(', ', $modules), 'ok');
-  } else
-  {
-    drush_log('Error when uninstalling modules: ' . implode(', ', $modules), 'notice');
+    // Install the css block classes for the courses pages.
+    $task = new Courses\CoursesBlockClasses();
+    $task->execute();
+
+    // Install the custom beans and css classes for the homepage layout.
+    $task = new Content\ImportJSECustomBeans();
+    $task->execute();
+    drush_log('Custom beans imported', 'ok');
+
+    $task = new Block\JSEBlockClasses();
+    $task->execute();
+    drush_log('jse block classes imported', 'ok');
+
+    $task = new Block\JSEContextualBlockClasses();
+    $task->execute();
+    drush_log('jse contextual block classes imported', 'ok');
+
+ }
+  else {
+    drush_log('The drush command sth-jse-users is only for use with Jumpstart Engineering', 'ok');
   }
-
-  // Enable all the department modules
-  $modules = array('stanford_jumpstart_home_dept',
-    'stanford_jse_dept',
-    'stanford_jse_related_content');
-  if (module_enable($modules)) {
-    drush_log('Enabled modules: ' . implode(', ', $modules), 'ok');
-  } else
-  {
-    drush_log('Error when enabling modules: ' . implode(', ', $modules), 'notice');
-  }
-  stanford_task_hopper_jse_install_courses($args);
 }
 
 /**
@@ -419,28 +438,38 @@ function stanford_task_hopper_jse_dept_mods(&$args = array()) {
  */
 function stanford_task_hopper_jse_dept_unmods(&$args = array()) {
 
-  $modules = array('stanford_jumpstart_home_dept',
-    'stanford_jse_dept',
-    'stanford_jse_related_content');
+  $install_profile = STH_INSTALL_PROFILE;
+  if ($install_profile == 'stanford_sites_jumpstart_engineering') {
+    $modules = array(
+      'stanford_jumpstart_home_dept',
+      'stanford_jse_dept',
+    );
 
-  module_disable($modules);
+    module_disable($modules);
 
-  if (drupal_uninstall_modules($modules)) {
-    drush_log('Disabled and uninstalled modules: ' . implode(', ', $modules), 'ok');
-  } else
-  {
-    drush_log('Error when uninstalling modules: ' . implode(', ', $modules), 'notice');
+    if (drupal_uninstall_modules($modules)) {
+      drush_log('Disabled and uninstalled modules: ' . implode(', ', $modules), 'ok');
+    }
+    else {
+      drush_log('Error when uninstalling modules: ' . implode(', ', $modules), 'notice');
+    }
+
+    // Enable the stanford_news_views.
+    $modules = array('stanford_news_views',);
+    if (module_enable($modules)) {
+      drush_log('Enabled modules: ' . implode(', ', $modules), 'ok');
+    }
+    else {
+      drush_log('Error when enabling modules: ' . implode(', ', $modules), 'notice');
+    }
+    // Disable courses
+    $task = new Courses\DisableCourses();
+    $task->execute();
+    drush_log('Courses Module disabled', 'ok');
   }
-
-  // Enable the stanford_news_views
-  $modules = array('stanford_news_views',);
-  if (module_enable($modules)) {
-    drush_log('Enabled modules: ' . implode(', ', $modules), 'ok');
-  } else
-  {
-    drush_log('Error when enabling modules: ' . implode(', ', $modules), 'notice');
+  else {
+    drush_log('The drush command sth-jse-users is only for use with Jumpstart Engineering', 'ok');
   }
-  stanford_task_hopper_jse_uninstall_courses($args);
 }
 
 /**
@@ -450,52 +479,16 @@ function stanford_task_hopper_jse_dept_unmods(&$args = array()) {
  * This installs the courses modules for JSE.
  */
 function stanford_task_hopper_jse_install_courses(&$args = array()) {
-  module_load_include('module', 'redirect', 'redirect.module');
-  module_load_include('module', 'features', 'features.module');
-  $modules = array('stanford_feeds_helper', 'stanford_courses',
-    'stanford_course_views', 'stanford_courses_administration');
 
-  if (module_enable($modules, TRUE)) {
-    // Todo: revert stanford_course_views
-    //features_revert(array('stanford_course_views' => array('views_view')));
-    //features_revert_module('stanford_course_views');
-    drush_log('Enabled modules: ' . implode(', ', $modules), 'ok');
-  } else
-  {
-    drush_log('Error when enabling modules: ' . implode(', ', $modules), 'notice');
-    exit();
-  }
+  // Enable courses
+  $task = new Courses\EnableCourses();
+  $task->execute();
+  drush_log('Courses module enabled', 'ok');
 
   // Install the css block classes for the courses pages.
   $task = new Courses\CoursesBlockClasses();
   $task->execute();
 
-  // Unpublish courses node
-
-  $query = new EntityFieldQuery();
-
-  $entities = $query->entityCondition('entity_type', 'node')
-                    ->propertyCondition('type', 'stanford_page')
-                    ->propertyCondition('title', 'Courses')
-                    ->execute();
-
-  if (!empty($entities['node'])) {
-    $node = node_load(array_shift(array_keys($entities['node'])));
-    path_node_delete($node);
-    $node->status = 0;
-    $node->title = 'Courses Deprecated';
-    $node->path['alias'] = 'courses-deprecated';
-    $node->path['pathauto'] = 0;
-    $node->menu = array(
-      'enabled' => 0,
-    );
-    node_save($node);
-    redirect_delete_by_path('courses');
-    redirect_delete_by_path('about/courses');
-    path_delete(array('source'=>'courses'));
-    path_delete(array('source'=>'about/courses'));
-    drush_log('Unpublished node: ' . $node->title . ' ' . $node->nid, 'ok');
-  }
 }
 
 /**
@@ -505,40 +498,9 @@ function stanford_task_hopper_jse_install_courses(&$args = array()) {
  * This uninstalls the courses modules for JSE.
  */
 function stanford_task_hopper_jse_uninstall_courses(&$args = array()) {
-  module_load_include('module', 'redirect', 'redirect.module');
-  $modules = array( 'stanford_course_views', 'stanford_courses_administration',
-    'stanford_courses', 'stanford_feeds_helper');
-  module_disable($modules);
 
-  if (drupal_uninstall_modules($modules, FALSE)) {
-    drush_log('Disabled and uninstalled modules: ' . implode(', ', $modules), 'ok');
-  } else
-  {
-    drush_log('Error when uninstalling modules: ' . implode(', ', $modules), 'notice');
-  }
-  // Publish courses node
-
-  $query = new EntityFieldQuery();
-
-  $entities = $query->entityCondition('entity_type', 'node')
-                    ->propertyCondition('type', 'stanford_page')
-                    ->propertyCondition('title', 'Courses Deprecated')
-                    ->execute();
-
-  if (!empty($entities['node'])) {
-    $node = node_load(array_shift(array_keys($entities['node'])));
-    path_node_delete($node);
-    $node->status = 1;
-    $node->title = 'Courses';
-    $node->path['alias'] = 'courses';
-    $node->menu = array(
-      'enabled' => 1,
-    );
-    node_save($node);
-    redirect_delete_by_path('courses-deprecated');
-    $alias = array('source' => 'node/' . $node->nid, 'alias' => 'about/courses',);
-    path_save($alias);
-    drush_log('Published node: ' . $node->title . ' ' . $node->nid, 'ok');
-  }
+  // Disable courses
+  $task = new Courses\DisableCourses();
+  $task->execute();
+  drush_log('Courses Module disabled', 'ok');
 }
-
