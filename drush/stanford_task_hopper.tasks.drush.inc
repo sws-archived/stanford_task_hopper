@@ -45,6 +45,7 @@ function stanford_task_hopper_get_tasks() {
   // If the user canceled the operation end the journey.
   if ($opt == FALSE) {
     drush_user_abort("Canceled operation.");
+    return;
   }
 
   // Load up and execute the task.

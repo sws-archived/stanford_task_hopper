@@ -4,6 +4,15 @@
  * A collection of recipe related functions.
  */
 
+$me = dirname(__FILE__);
+
+require_once $me . "/../includes/yaml/Exception/ExceptionInterface.php";
+require_once $me . "/../includes/yaml/Exception/RuntimeException.php";
+require_once $me . "/../includes/yaml/Exception/ParseException.php";
+require_once $me . "/../includes/yaml/Yaml.php";
+
+use Symfony\Component\Yaml\Yaml;
+
 /**
  * Provide a prompt for users to find and execute recipes.
  */
@@ -48,7 +57,7 @@ function stanford_task_hopper_get_recipes() {
   }
 
   // Load up and execute the recipe.
-
+  // TODO
 
 }
 
@@ -62,9 +71,22 @@ function stanford_task_hopper_get_recipes() {
  *   A path to a recipe.
  */
 function stanford_task_hopper_execute_recipe($recipe) {
+  // Get the yml in to a form we can work with.
+  $info = stanford_task_hopper_get_recipe_yml_info($recipe);
 
+  // Something is wrong if we have no tasks.
+  if (!isset($info['tasks']) || !is_array($info['tasks'])) {
+    throw new Exception("No tasks found in recipe yml file.");
+  }
 
+  // Validate all the tasks.
+  array_map('drush_stanford_task_hopper_hopper_task_execute_pre_validate', $info['tasks']);
 
+  // Execute each of the tasks.
+  array_map('stanford_task_hopper_execute_task', $info['tasks']);
+
+  // Let the user know. :D.
+  drush_log($info['machine_name'] . " completed successfully.", "status");
 }
 
 /**
@@ -74,10 +96,54 @@ function stanford_task_hopper_execute_recipe($recipe) {
  *   A path to a recipe yml file.
  */
 function stanford_task_hopper_describe_recipe($recipe) {
+  $info = stanford_task_hopper_get_recipe_yml_info($recipe);
 
-  if (!function_exists('yaml_parse')) {
-    throw new Exception("You cannot parse yml. You need PECL.", 1);
-
+  if (!isset($info['name'])) {
+    drush_log("No name available.", "error");
+    return;
   }
 
+  if (!isset($info['description'])) {
+    drush_log("No description available.", "error");
+    return;
+  }
+
+  drush_log($info['name'], 'status');
+  drush_log($info['description'], 'status');
+}
+
+/**
+ * A*******************************************************.
+ *
+ * HELPER FUNCTIONS.
+ *
+ * A*******************************************************.
+ */
+
+/**
+ * Takes a relative path to a yml recipe file and turns it into a php array.
+ *
+ * @param string $recipe
+ *   A string with a file path relative to the Recipes folder in the tasks repo.
+ *
+ * @return array
+ *   An array with the parsed info from the yml file.
+ */
+function stanford_task_hopper_get_recipe_yml_info($recipe) {
+  $path = stanford_task_hopper_get_tasks_path() . "/Recipes/";
+  $full = $path . $recipe;
+  $value = NULL;
+
+  if (!is_file($full)) {
+    throw new Exception("Recipe YML File Not Found");
+  }
+
+  try {
+    $value = Yaml::parse(file_get_contents($full));
+  }
+  catch (ParseException $e) {
+    drush_set_error("error", $e->getMessage(), "Could not parse yml file: $full");
+    drush_user_abort();
+  }
+  return $value;
 }
