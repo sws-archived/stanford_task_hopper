@@ -5,7 +5,6 @@
  */
 
 $me = dirname(__FILE__);
-
 require_once $me . "/../includes/yaml/Exception/ExceptionInterface.php";
 require_once $me . "/../includes/yaml/Exception/RuntimeException.php";
 require_once $me . "/../includes/yaml/Exception/ParseException.php";
@@ -53,11 +52,12 @@ function stanford_task_hopper_get_recipes() {
 
   // If the user canceled the operation end the journey.
   if ($opt == FALSE) {
-    drush_user_abort("Canceled operation.");
+    drush_user_abort("Cancelled operation.");
   }
 
   // Load up and execute the recipe.
-  // TODO
+  $path = implode("/", $choices);
+  stanford_task_hopper_execute_recipe($path);
 
 }
 
