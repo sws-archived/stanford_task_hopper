@@ -140,6 +140,21 @@ function stanford_task_hopper_load_dependencies() {
  */
 function stanford_task_hopper_get_tasks_path() {
 
+  // First try to find a specific configuration setting.
+  $vget = variable_get("stanford_task_hopper_task_path", NULL);
+
+  if (!is_null($vget)) {
+
+    // If the directory does not exist or the path from this execution is wrong
+    // error out.
+    if (!is_dir($vget)) {
+      throw new Exception("Task directory not found.");
+    }
+
+    // Checks out. Go with the setting.
+    return $vget;
+  }
+
   // Load up the current installation profile as it has the info we need.
   $profile = variable_get("install_profile", FALSE);
 
