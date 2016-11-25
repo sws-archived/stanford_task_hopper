@@ -33,8 +33,6 @@ function stanford_task_hopper_get_recipes() {
     $dir = drush_scan_directory($scan_dir, "*.*", $mask, NULL, 0, "basename");
     // Add an option to go back up a level to the option #1.
     array_unshift($dir, array("Back" => "Back"));
-    // Keys are the basename of the result.
-    $keys = array_keys($dir);
 
     $message = "Choose a directory to explore or recipe to execute.";
     $opt = drush_choice($dir, $message, "!key");
