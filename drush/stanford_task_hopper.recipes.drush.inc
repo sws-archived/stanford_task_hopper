@@ -80,6 +80,12 @@ function stanford_task_hopper_execute_recipe($recipe) {
   // Validate all the tasks.
   array_map('drush_stanford_task_hopper_hopper_task_execute_pre_validate', $info['tasks']);
 
+  // Check to see if there are any errors. If there are do not execute.
+  $errors = drush_get_error_log();
+  if (count($errors)) {
+    return;
+  }
+
   // Execute each of the tasks.
   array_map('stanford_task_hopper_execute_task', $info['tasks']);
 
