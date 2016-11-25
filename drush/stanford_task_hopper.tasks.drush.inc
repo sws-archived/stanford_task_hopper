@@ -50,7 +50,17 @@ function stanford_task_hopper_get_tasks() {
 
   // Load up and execute the task.
   $class = stanford_task_hopper_get_class_name_from_path_array($choices);
+
+  // Ensure the validation functions have been run.
   drush_stanford_task_hopper_hopper_task_execute_pre_validate($class);
+
+  // Check to see if there are any errors. If there are do not execute.
+  $errors = drush_get_error_log();
+  if (count($errors)) {
+    return;
+  }
+
+  // No errors. We can fire.
   stanford_task_hopper_execute_task($class);
 }
 
