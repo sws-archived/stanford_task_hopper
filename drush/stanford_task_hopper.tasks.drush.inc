@@ -163,6 +163,13 @@ function drush_stanford_task_hopper_hopper_task_execute_pre_validate($class) {
       drush_user_abort();
     }
   }
+
+  // Run the validation method and trow up an error if something comes up.
+  if (!$task->verify()) {
+    drush_set_error("error", $task->getMachineName() . " Failed validation.");
+    drush_user_abort();
+  }
+
 }
 
 /**
