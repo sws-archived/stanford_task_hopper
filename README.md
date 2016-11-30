@@ -36,7 +36,7 @@ taskdir = sites/all/libraries/tasks
 You must have a task library available. You can download it at [https://github.com/SU-SWS/stanford_install_tasks](https://github.com/SU-SWS/stanford_install_tasks). This library must be installed at the path configured in the installation profile.
 
 
-**Drush Version**
+**Drush Version**  
 Currently the task hopper requires the use of Drush version 8.
 
 
