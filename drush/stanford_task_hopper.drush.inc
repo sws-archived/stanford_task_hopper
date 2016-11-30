@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Stanford Task Hopper Drush Commands.
@@ -94,8 +95,6 @@ function stanford_task_hopper_drush_command() {
 
   return $items;
 }
-
-
 
 /**
  * A**********************************************.
